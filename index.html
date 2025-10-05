@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AvesproMAX - Sistema de Gestão Avícola</title>
+    <title>Tutorial AvesproMAX - Sistema de Gestão Avícola</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -42,299 +43,74 @@
         .header {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: var(--white);
-            padding: 20px 0;
+            padding: 30px 0;
             box-shadow: var(--shadow);
             margin-bottom: 30px;
+            text-align: center;
         }
 
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            font-size: 24px;
-            font-weight: bold;
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
         }
 
-        .logo i {
-            margin-right: 10px;
-            font-size: 30px;
-        }
-
-        .date-time {
-            text-align: right;
-        }
-
-        /* Player de Rádio */
-        .radio-player {
-            display: none; /* Inicialmente oculto */
-            align-items: center;
-            gap: 10px;
-        }
-
-        .radio-player.visible {
-            display: flex; /* Visível após login */
-        }
-
-        .radio-btn {
-            background: transparent;
-            border: none;
-            color: var(--white);
-            font-size: 24px;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-
-        .radio-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .radio-station {
-            font-size: 14px;
-            opacity: 0.8;
-        }
-
-        .radio-volume {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .volume-slider {
-            width: 80px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 5px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        /* Login */
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 80vh;
-        }
-
-        .login-box {
+        /* Seções */
+        .section {
             background: var(--white);
-            padding: 30px;
             border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
             box-shadow: var(--shadow);
-            width: 100%;
-            max-width: 400px;
         }
 
-        .login-box h2 {
-            text-align: center;
-            margin-bottom: 20px;
+        .section h2 {
             color: var(--primary);
-        }
-
-        .form-group {
+            font-size: 1.8rem;
             margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
+        .section h3 {
+            color: var(--secondary);
+            font-size: 1.4rem;
+            margin: 25px 0 15px;
         }
 
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
+        .section p {
+            margin-bottom: 15px;
+            text-align: justify;
         }
 
-        .btn {
-            display: inline-block;
-            background: var(--primary);
-            color: var(--white);
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: var(--transition);
-            text-align: center;
+        .section ul, .section ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
         }
 
-        .btn:hover {
-            background: var(--secondary);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-        }
-
-        .btn-danger:hover {
-            background: #c0392b;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-        }
-
-        .btn-warning:hover {
-            background: #e67e22;
-        }
-
-        .btn-info {
-            background: var(--info);
-        }
-
-        .btn-info:hover {
-            background: #2980b9;
-        }
-
-        .btn-full {
-            width: 100%;
-        }
-
-        .btn-small {
-            padding: 8px 12px;
-            font-size: 14px;
-        }
-
-        /* Botões de Ação */
-        .action-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-edit {
-            background: var(--info);
-            color: var(--white);
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .btn-edit:hover {
-            background: #2980b9;
-            transform: translateY(-2px);
-        }
-
-        .btn-delete {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: var(--white);
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-delete:hover {
-            background: linear-gradient(135deg, #ee5a24, #c44569);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(238, 90, 36, 0.3);
-        }
-
-        .btn-delete::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn-delete:hover::before {
-            left: 100%;
-        }
-
-        /* Dashboard */
-        .dashboard {
-            display: none;
-        }
-
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            background: var(--white);
-            border-radius: 5px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            flex-wrap: wrap;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-            border-bottom: 3px solid transparent;
-            min-width: 120px;
-        }
-
-        .tab:hover {
-            background: #f9f9f9;
-        }
-
-        .tab.active {
-            border-bottom: 3px solid var(--primary);
-            background: #f9f9f9;
-        }
-
-        .tab-content {
-            display: none;
-            background: var(--white);
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: var(--shadow);
-        }
-
-        .tab-content.active {
-            display: block;
+        .section li {
+            margin-bottom: 8px;
         }
 
         /* Cards */
         .cards {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
-            margin-bottom: 20px;
+            margin: 25px 0;
         }
 
         .card {
-            background: var(--white);
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             border-radius: 10px;
             padding: 20px;
             box-shadow: var(--shadow);
             transition: var(--transition);
+            border-left: 4px solid var(--primary);
         }
 
         .card:hover {
@@ -342,156 +118,108 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
         .card-title {
-            font-size: 18px;
+            font-size: 1.2rem;
             font-weight: 600;
             color: var(--dark);
-        }
-
-        .card-icon {
-            font-size: 24px;
-            color: var(--primary);
-        }
-
-        .card-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--primary);
-            margin: 10px 0;
-        }
-
-        /* Formulários */
-        .form-row {
+            margin-bottom: 10px;
             display: flex;
-            gap: 20px;
-            margin-bottom: 15px;
+            align-items: center;
         }
 
-        .form-row .form-group {
-            flex: 1;
+        .card-title i {
+            margin-right: 10px;
+            color: var(--primary);
         }
 
-        /* Tabelas */
+        /* Tabela */
         .table-container {
             overflow-x: auto;
+            margin: 25px 0;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
         }
 
         th, td {
-            padding: 12px 15px;
+            padding: 15px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
         th {
-            background-color: #f8f9fa;
+            background-color: var(--primary);
+            color: var(--white);
             font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
         }
 
         tr:hover {
-            background-color: #f8f9fa;
+            background-color: #e8f5e9;
         }
 
-        /* Alarme */
-        .alarm {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--danger);
-            color: var(--white);
-            padding: 15px 20px;
-            border-radius: 5px;
-            box-shadow: var(--shadow);
-            display: none;
-            z-index: 1000;
-            animation: pulse 1s infinite;
-            max-width: 300px;
+        /* Destaques */
+        .highlight {
+            background: linear-gradient(120deg, rgba(46, 204, 113, 0.2), rgba(39, 174, 96, 0.2));
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            margin: 20px 0;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .alarm i {
-            margin-right: 10px;
-        }
-
-        .alarm-close {
-            position: absolute;
-            top: 5px;
-            right: 10px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        /* Clima */
-        .weather-widget {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: var(--white);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow);
-        }
-
-        .weather-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .weather-location {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .weather-temp {
-            font-size: 36px;
-            font-weight: bold;
-        }
-
-        .weather-description {
-            font-size: 16px;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-
-        .weather-details {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-        }
-
-        .weather-detail {
-            text-align: center;
+        .highlight h4 {
+            color: var(--secondary);
             margin-bottom: 10px;
-            flex: 1;
-            min-width: 100px;
         }
 
-        .weather-detail i {
-            font-size: 24px;
-            margin-bottom: 5px;
+        .tip {
+            background: linear-gradient(120deg, rgba(241, 196, 15, 0.2), rgba(243, 156, 18, 0.2));
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--warning);
+            margin: 20px 0;
         }
 
-        .weather-icon {
-            font-size: 48px;
-            margin-right: 15px;
+        .tip h4 {
+            color: var(--warning);
+            margin-bottom: 10px;
+        }
+
+        /* Botão */
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: var(--white);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: var(--transition);
+            text-decoration: none;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn i {
+            margin-right: 8px;
         }
 
         /* Rodapé */
@@ -500,26 +228,18 @@
             color: var(--white);
             padding: 30px 0;
             margin-top: 50px;
+            text-align: center;
         }
 
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-        }
-
-        .footer-section h3 {
-            margin-bottom: 15px;
-            font-size: 18px;
-            color: var(--primary);
+        .footer p {
+            margin-bottom: 10px;
         }
 
         .social-links {
             display: flex;
+            justify-content: center;
             gap: 15px;
+            margin-top: 15px;
         }
 
         .social-links a {
@@ -530,2066 +250,384 @@
 
         .social-links a:hover {
             color: var(--primary);
-        }
-
-        .copyright {
-            text-align: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #444;
-            font-size: 14px;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background: var(--white);
-            border-radius: 10px;
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .modal-close {
-            font-size: 24px;
-            cursor: pointer;
-            color: #777;
-        }
-
-        .modal-close:hover {
-            color: var(--dark);
-        }
-
-        /* Notificação */
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: var(--white);
-            padding: 15px 20px;
-            border-radius: 5px;
-            box-shadow: var(--shadow);
-            display: none;
-            z-index: 1000;
-            max-width: 300px;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-
-        .notification.error {
-            background: var(--danger);
-        }
-
-        .notification.warning {
-            background: var(--warning);
-        }
-
-        .notification-close {
-            position: absolute;
-            top: 5px;
-            right: 10px;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        /* Controle de Temperatura */
-        .temp-control {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .temp-display {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        .temp-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .temp-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .temp-button.up {
-            background: var(--info);
-            color: var(--white);
-        }
-
-        .temp-button.up:hover {
-            background: #2980b9;
-        }
-
-        .temp-button.down {
-            background: var(--warning);
-            color: var(--white);
-        }
-
-        .temp-button.down:hover {
-            background: #e67e22;
-        }
-
-        .temp-range {
-            width: 100%;
-            margin: 15px 0;
-        }
-
-        .temp-status {
-            text-align: center;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-
-        .temp-status.normal {
-            background: rgba(46, 204, 113, 0.2);
-            color: var(--primary);
-        }
-
-        .temp-status.high {
-            background: rgba(231, 76, 60, 0.2);
-            color: var(--danger);
-        }
-
-        .temp-status.low {
-            background: rgba(243, 156, 18, 0.2);
-            color: var(--warning);
-        }
-
-        /* Botão Voltar ao Topo */
-        .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: var(--white);
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: var(--shadow);
-            z-index: 999;
-            transition: var(--transition);
-        }
-
-        .back-to-top:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .back-to-top.visible {
-            display: flex;
-        }
-
-        /* Marca d'água */
-        .watermark {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            opacity: 0.2;
-            font-size: 16px;
-            z-index: 999;
-            pointer-events: none;
-            color: #000;
-            font-weight: bold;
-        }
-
-        /* Aviso de Ferramentas de Desenvolvedor */
-        .devtools-warning {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #ff4d4d;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            z-index: 1000;
-            font-weight: bold;
+            transform: translateY(-3px);
         }
 
         /* Responsivo */
         @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                text-align: center;
+            .header h1 {
+                font-size: 2rem;
             }
             
-            .date-time {
-                margin-top: 10px;
-                text-align: center;
+            .section {
+                padding: 20px;
             }
             
-            .radio-player.visible {
-                margin-top: 10px;
+            .section h2 {
+                font-size: 1.5rem;
             }
             
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-
-            .tabs {
-                flex-direction: column;
-            }
-            
-            .tab {
-                flex: none;
-                border-bottom: 1px solid #eee;
-            }
-            
-            .tab.active {
-                border-bottom: 1px solid var(--primary);
-            }
-            
-            .weather-header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .weather-temp {
-                margin-top: 10px;
-            }
-            
-            .weather-details {
-                justify-content: center;
-            }
-            
-            .footer-content {
+            .cards {
                 grid-template-columns: 1fr;
-                text-align: center;
             }
             
-            .social-links {
-                justify-content: center;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .back-to-top {
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
-                bottom: 20px;
-                right: 20px;
-            }
-            
-            .watermark {
-                font-size: 14px;
-                bottom: 10px;
-                right: 10px;
+            th, td {
+                padding: 10px;
+                font-size: 0.9rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Aviso de Ferramentas de Desenvolvedor -->
-    <div class="devtools-warning" id="devtools-warning">
-        <strong>Aviso:</strong> Ferramentas de desenvolvedor detectadas! O conteúdo pode estar vulnerável.
-    </div>
-
-    <!-- Marca d'água -->
-    <div class="watermark" id="watermark">&copy; AvesproMAX - Todos os direitos reservados</div>
-
     <!-- Cabeçalho -->
     <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-egg"></i>
-                <span>AvesproMAX</span>
-            </div>
-            
-            <!-- Player de Rádio (inicialmente oculto) -->
-            <div id="radio-player" class="radio-player">
-                <button id="radio-play" class="radio-btn">
-                    <i class="fas fa-play"></i>
-                </button>
-                <button id="radio-stop" class="radio-btn" style="display: none;">
-                    <i class="fas fa-pause"></i>
-                </button>
-                <div class="radio-station">Rádio Avícola</div>
-                <div class="radio-volume">
-                    <i class="fas fa-volume-down"></i>
-                    <input type="range" id="volume-slider" class="volume-slider" min="0" max="100" value="50">
-                    <i class="fas fa-volume-up"></i>
-                </div>
-            </div>
-            
-            <div class="date-time">
-                <div id="current-date"></div>
-                <div id="current-time"></div>
-            </div>
+        <div class="container">
+            <h1><i class="fas fa-egg"></i> Tutorial AvesproMAX</h1>
+            <p>Sistema Completo de Gestão Avícola</p>
         </div>
     </header>
 
-    <!-- Tela de Login -->
-    <div id="login-screen" class="login-container">
-        <div class="login-box">
-            <h2><i class="fas fa-user-circle"></i> Acesso ao Sistema</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="username">Usuário</label>
-                    <input type="text" id="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Senha</label>
-                    <input type="password" id="password" required>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="remember-login"> Lembrar meu usuário
-                    </label>
-                </div>
-                <button type="submit" class="btn btn-full">Entrar</button>
-            </form>
-            <div id="login-feedback" style="margin-top: 15px; text-align: center; color: var(--danger); display: none;">
-                Usuário ou senha incorretos!
-            </div>
-        </div>
-    </div>
-
-    <!-- Dashboard -->
-    <div id="dashboard" class="dashboard container">
-        <div class="tabs">
-            <div class="tab active" data-tab="postura"><i class="fas fa-egg"></i> Postura</div>
-            <div class="tab" data-tab="lote"><i class="fas fa-feather"></i> Lote</div>
-            <div class="tab" data-tab="incubadora"><i class="fas fa-temperature-high"></i> Incubadora</div>
-            <div class="tab" data-tab="alimentacao"><i class="fas fa-seedling"></i> Alimentação</div>
-            <div class="tab" data-tab="clima"><i class="fas fa-cloud-sun"></i> Clima</div>
-        </div>
-
-        <!-- Conteúdo das Abas -->
-        <div id="postura" class="tab-content active">
-            <h2><i class="fas fa-egg"></i> Controle de Postura</h2>
+    <div class="container">
+        <!-- Introdução -->
+        <section class="section">
+            <h2><i class="fas fa-info-circle"></i> Introdução ao Sistema</h2>
+            <p>O AvesproMAX é um sistema completo de gestão avícola desenvolvido para facilitar o controle de todas as etapas da criação de aves, desde a postura até a incubação dos ovos. Com interface intuitiva e funcionalidades robustas, o sistema permite o gerenciamento eficiente de lotes, controle de postura, monitoramento de incubadoras, registro de alimentação e acompanhamento das condições climáticas.</p>
             
             <div class="cards">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Ovos Colhidos</div>
-                        <div class="card-icon"><i class="fas fa-egg"></i></div>
-                    </div>
-                    <div class="card-value" id="ovos-colhidos">0</div>
-                    <small>Registre a quantidade de ovos colhidos hoje</small>
+                    <div class="card-title"><i class="fas fa-egg"></i> Postura</div>
+                    <p>Registre diariamente a quantidade de ovos colhidos, quebrados e defeituosos. Acompanhe a produtividade do seu plantel através de relatórios visuais.</p>
                 </div>
-                
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Ovos Quebrados</div>
-                        <div class="card-icon"><i class="fas fa-egg-broken"></i></div>
-                    </div>
-                    <div class="card-value" id="ovos-quebrados">0</div>
-                    <small>Registre ovos quebrados durante a coleta</small>
+                    <div class="card-title"><i class="fas fa-feather"></i> Lotes</div>
+                    <p>Cadastre e gerencie seus lotes de aves com informações detalhadas sobre raça, quantidade e datas de registro.</p>
                 </div>
-                
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Ovos Defeituosos</div>
-                        <div class="card-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                    </div>
-                    <div class="card-value" id="ovos-defeituosos">0</div>
-                    <small>Registre ovos com defeitos</small>
+                    <div class="card-title"><i class="fas fa-temperature-high"></i> Incubadora</div>
+                    <p>Controle preciso da temperatura, registre novas incubações e acompanhe o ciclo de desenvolvimento dos ovos em tempo real.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-seedling"></i> Alimentação</div>
+                    <p>Registre os tipos de ração, quantidades e horários de alimentação. Configure alarmes para não perder nenhum horário.</p>
                 </div>
             </div>
+        </section>
 
-            <div class="card">
-                <h3>Registrar Nova Postura</h3>
-                <form id="postura-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="data-postura">Data</label>
-                            <input type="date" id="data-postura" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="ovos-colhidos-input">Ovos Colhidos</label>
-                            <input type="number" id="ovos-colhidos-input" min="0" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="ovos-quebrados-input">Ovos Quebrados</label>
-                            <input type="number" id="ovos-quebrados-input" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="ovos-defeituosos-input">Ovos Defeituosos</label>
-                            <input type="number" id="ovos-defeituosos-input" min="0" required>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn">Registrar Postura</button>
-                </form>
+        <!-- Acesso ao Sistema -->
+        <section class="section">
+            <h2><i class="fas fa-sign-in-alt"></i> Acesso ao Sistema</h2>
+            <p>Para acessar o AvesproMAX, siga os passos abaixo:</p>
+            
+            <ol>
+                <li>Acesse a página inicial do sistema</li>
+                <li>Insira as credenciais de acesso:
+                    <ul>
+                        <li><strong>Usuário:</strong> admin</li>
+                        <li><strong>Senha:</strong> aves2026</li>
+                    </ul>
+                </li>
+                <li>Marque a opção "Lembrar meu usuário" se desejar que o sistema salve seu nome de usuário</li>
+                <li>Clique no botão "Entrar"</li>
+            </ol>
+            
+            <div class="highlight">
+                <h4><i class="fas fa-shield-alt"></i> Segurança do Sistema</h4>
+                <p>O AvesproMAX possui proteções avançadas contra cópia de conteúdo, impressão não autorizada e acesso às ferramentas de desenvolvedor. Isso garante a integridade dos dados e a segurança do sistema.</p>
             </div>
+        </section>
 
-            <div class="card">
-                <h3>Histórico de Postura</h3>
-                <div class="table-container">
-                    <table id="postura-table">
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Ovos Colhidos</th>
-                                <th>Ovos Quebrados</th>
-                                <th>Ovos Defeituosos</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Registros serão adicionados aqui -->
-                        </tbody>
-                    </table>
+        <!-- Dashboard -->
+        <section class="section">
+            <h2><i class="fas fa-tachometer-alt"></i> Dashboard Principal</h2>
+            <p>Após o login, você será direcionado para o dashboard principal do sistema. No topo da página, você encontrará:</p>
+            
+            <ul>
+                <li><strong>Menu de Navegação:</strong> Abas para acessar os diferentes módulos do sistema</li>
+                <li><strong>Player de Rádio:</strong> Ouça a Rádio Avícola enquanto trabalha</li>
+                <li><strong>Data e Hora:</strong> Informações atualizadas em tempo real</li>
+            </ul>
+            
+            <p>As abas principais do sistema são:</p>
+            <div class="cards">
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-egg"></i> Postura</div>
+                    <p>Controle de ovos colhidos, quebrados e defeituosos</p>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-feather"></i> Lote</div>
+                    <p>Gestão de lotes de aves com informações detalhadas</p>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-temperature-high"></i> Incubadora</div>
+                    <p>Monitoramento e controle de incubadoras</p>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-seedling"></i> Alimentação</div>
+                    <p>Registro de alimentação e configuração de alarmes</p>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-cloud-sun"></i> Clima</div>
+                    <p>Informações climáticas e previsão do tempo</p>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div id="lote" class="tab-content">
-            <h2><i class="fas fa-feather"></i> Gestão de Lotes</h2>
+        <!-- Módulo Incubadora -->
+        <section class="section">
+            <h2><i class="fas fa-temperature-high"></i> Módulo Incubadora</h2>
+            <p>O módulo de incubadora é uma das funcionalidades mais importantes do AvesproMAX, permitindo o controle preciso das condições necessárias para o sucesso na incubação de ovos de diversas espécies de aves.</p>
+            
+            <h3>Funcionalidades do Módulo</h3>
+            <ul>
+                <li><strong>Controle de temperatura:</strong> Ajuste e monitoramento da temperatura da incubadora com precisão de 0.1°C</li>
+                <li><strong>Registro de incubações:</strong> Cadastre novas incubações com informações sobre raça, quantidade de ovos e duração do ciclo</li>
+                <li><strong>Acompanhamento de ciclos:</strong> Visualize o status atual de cada incubação em andamento</li>
+                <li><strong>Alertas visuais:</strong> O sistema indica quando a temperatura está ideal, alta ou baixa para a incubação</li>
+            </ul>
+            
+            <h3>Controlando a Temperatura</h3>
+            <ol>
+                <li>Na seção "Controle de Temperatura", visualize a temperatura atual da incubadora</li>
+                <li>Use os botões <strong>+</strong> e <strong>-</strong> para ajustar a temperatura em incrementos de 0.1°C</li>
+                <li>Utilize o controle deslizante para ajustes mais precisos</li>
+                <li>Monitore o indicador de status:
+                    <ul>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary);"></i> <strong>Verde:</strong> Temperatura ideal para incubação</li>
+                        <li><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> <strong>Vermelho:</strong> Temperatura alta - ajuste imediatamente</li>
+                        <li><i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i> <strong>Amarelo:</strong> Temperatura baixa - ajuste para garantir o desenvolvimento</li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <div class="tip">
+                <h4><i class="fas fa-lightbulb"></i> Dica Importante</h4>
+                <p>A temperatura é o fator mais crítico na incubação. Variações de mais de 0.5°C podem afetar significativamente a taxa de eclosão. Verifique a temperatura pelo menos 2 vezes ao dia!</p>
+            </div>
+            
+            <h3>Registrando uma Nova Incubação</h3>
+            <ol>
+                <li>Na seção "Registrar Nova Incubação", preencha os campos:
+                    <ul>
+                        <li><strong>Raça:</strong> Informe a raça das aves (ex: Plymouth Rock)</li>
+                        <li><strong>Quantidade de Ovos:</strong> Número de ovos colocados na incubadora</li>
+                        <li><strong>Data de Início:</strong> Data em que a incubação foi iniciada</li>
+                        <li><strong>Ciclo (dias):</strong> Duração do ciclo de incubação (consulte a tabela abaixo)</li>
+                    </ul>
+                </li>
+                <li>Clique em "Registrar Incubação" para salvar</li>
+                <li>O sistema calculará automaticamente a data prevista para o nascimento</li>
+            </ol>
+            
+            <h3>Acompanhando as Incubações em Andamento</h3>
+            <p>Na seção "Incubações em Andamento", você pode visualizar todas as incubações registradas, incluindo:</p>
+            <ul>
+                <li>Data de início</li>
+                <li>Raça</li>
+                <li>Quantidade de ovos</li>
+                <li>Duração do ciclo</li>
+                <li>Status atual (Dia X/Y)</li>
+                <li>Opções para editar ou excluir o registro</li>
+            </ul>
+        </section>
+
+        <!-- Tabela de Incubação -->
+        <section class="section">
+            <h2><i class="fas fa-table"></i> Tabela de Períodos de Incubação</h2>
+            <p>A tabela abaixo apresenta os períodos de incubação e as temperaturas ideais para diversas espécies de aves. Utilize estas informações como referência para configurar sua incubadora no sistema AvesproMAX.</p>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Espécie</th>
+                            <th>Período de Incubação (dias)</th>
+                            <th>Temperatura Ideal (°C)</th>
+                            <th>Umidade Relativa (%)</th>
+                            <th>Viragem (vezes/dia)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Galinha</strong></td>
+                            <td>21</td>
+                            <td>37.5 - 37.8</td>
+                            <td>50-60</td>
+                            <td>3-5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Codorna</strong></td>
+                            <td>16-18</td>
+                            <td>37.5 - 37.7</td>
+                            <td>50-60</td>
+                            <td>3-5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pato</strong></td>
+                            <td>28</td>
+                            <td>37.5 - 37.8</td>
+                            <td>55-65</td>
+                            <td>4-6</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pavão</strong></td>
+                            <td>28-30</td>
+                            <td>37.2 - 37.5</td>
+                            <td>50-60</td>
+                            <td>3-5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Peru</strong></td>
+                            <td>28</td>
+                            <td>37.2 - 37.5</td>
+                            <td>55-65</td>
+                            <td>3-5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cisne</strong></td>
+                            <td>35-42</td>
+                            <td>37.0 - 37.3</td>
+                            <td>55-65</td>
+                            <td>2-4</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ganso</strong></td>
+                            <td>28-34</td>
+                            <td>37.2 - 37.5</td>
+                            <td>55-65</td>
+                            <td>3-5</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Calopsita</strong></td>
+                            <td>18-21</td>
+                            <td>37.0 - 37.3</td>
+                            <td>45-55</td>
+                            <td>4-6</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="highlight">
+                <h4><i class="fas fa-info-circle"></i> Informações Importantes</h4>
+                <ul>
+                    <li><strong>Viragem dos ovos:</strong> A maioria das espécies requer que os ovos sejam virados várias vezes ao dia durante a incubação. Este processo evita que o embrião grude na casca.</li>
+                    <li><strong>Umidade:</strong> Manter os níveis adequados de umidade é crucial para evitar perda excessiva de água do ovo e facilitar o nascimento.</li>
+                    <li><strong>Resfriamento diário:</strong> Para algumas espécies como galinhas e codornas, recomenda-se um resfriamento diário dos ovos por cerca de 15-20 minutos a partir do 7º dia de incubação.</li>
+                    <li><strong>Nascimento:</strong> Quando os ovos estiverem próximos do final do ciclo (últimos 2-3 dias), evite abrir a incubadora para não alterar a umidade e temperatura.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Outros Módulos -->
+        <section class="section">
+            <h2><i class="fas fa-cogs"></i> Outros Módulos do Sistema</h2>
+            
+            <h3>Módulo de Postura</h3>
+            <p>No módulo de postura, você pode registrar diariamente:</p>
+            <ul>
+                <li>Quantidade de ovos colhidos</li>
+                <li>Ovos quebrados durante a coleta</li>
+                <li>Ovos com defeitos (casca fina, deformações, etc.)</li>
+            </ul>
+            <p>O sistema calcula automaticamente os totais e apresenta estatísticas visuais para acompanhar a produtividade do seu plantel.</p>
+            
+            <h3>Módulo de Lotes</h3>
+            <p>Gerencie seus lotes de aves com informações detalhadas:</p>
+            <ul>
+                <li>Tipo de ave (galinha, galo, pintainha, franga)</li>
+                <li>Raça</li>
+                <li>Quantidade de aves</li>
+                <li>Data de registro</li>
+            </ul>
+            <p>O sistema apresenta o total de aves e a raça predominante nos cards de resumo.</p>
+            
+            <h3>Módulo de Alimentação</h3>
+            <p>Controle a alimentação do seu plantel:</p>
+            <ul>
+                <li>Registro do tipo de ração utilizada</li>
+                <li>Quantidade em kg</li>
+                <li>Data e horário da alimentação</li>
+                <li>Programação da próxima alimentação</li>
+            </ul>
+            <p>Configure alarmes para não perder nenhum horário de alimentação e receba notificações quando chegar a hora.</p>
+            
+            <h3>Módulo de Clima</h3>
+            <p>Acompanhe as condições climáticas:</p>
+            <ul>
+                <li>Temperatura atual</li>
+                <li>Umidade relativa</li>
+                <li>Velocidade do vento</li>
+                <li>Fase da lua</li>
+                <li>Previsão do tempo para os próximos dias</li>
+            </ul>
+            <p>O sistema utiliza a geolocalização para fornecer informações precisas da sua região.</p>
+        </section>
+
+        <!-- Dicas Gerais -->
+        <section class="section">
+            <h2><i class="fas fa-lightbulb"></i> Dicas Gerais de Uso</h2>
             
             <div class="cards">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Total de Aves</div>
-                        <div class="card-icon"><i class="fas fa-feather"></i></div>
-                    </div>
-                    <div class="card-value" id="total-aves">0</div>
-                    <small>Quantidade total de aves no lote</small>
+                    <div class="card-title"><i class="fas fa-save"></i> Salvamento Automático</div>
+                    <p>O sistema salva automaticamente todas as informações no navegador. Não há risco de perder dados mesmo que feche a página acidentalmente.</p>
                 </div>
-                
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Raça Principal</div>
-                        <div class="card-icon"><i class="fas fa-tag"></i></div>
-                    </div>
-                    <div class="card-value" id="raca-principal">-</div>
-                    <small>Raça predominante no lote</small>
+                    <div class="card-title"><i class="fas fa-bell"></i> Alarmes e Notificações</div>
+                    <p>Configure alarmes para alimentação e outras tarefas importantes. O sistema exibirá alertas visuais e sonoros quando chegar a hora.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-edit"></i> Edição de Registros</div>
+                    <p>Todos os registros podem ser editados posteriormente. Basta clicar no botão "Editar" na tabela correspondente para corrigir informações.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-redo"></i> Reset do Sistema</div>
+                    <p>Se necessário, você pode resetar todos os dados do sistema através do botão "Resetar Sistema". Será necessária a senha de administrador para confirmar.</p>
                 </div>
             </div>
-
-            <div class="card">
-                <h3>Registrar Novo Lote</h3>
-                <form id="lote-form">
-                    <div class="form-group">
-                        <label for="tipo-ave">Tipo de Ave</label>
-                        <select id="tipo-ave" required>
-                            <option value="">Selecione o tipo</option>
-                            <option value="galinha">Galinha</option>
-                            <option value="galo">Galo</option>
-                            <option value="pintainha">Pintainha</option>
-                            <option value="franga">Franga</option>
-                        </select>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="raca-ave">Raça</label>
-                            <input type="text" id="raca-ave" placeholder="Ex: Plymouth Rock" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="quantidade-ave">Quantidade</label>
-                            <input type="number" id="quantidade-ave" min="1" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="data-lote">Data de Registro</label>
-                        <input type="date" id="data-lote" required>
-                    </div>
-                    <button type="submit" class="btn">Registrar Lote</button>
-                </form>
+            
+            <div class="tip">
+                <h4><i class="fas fa-mobile-alt"></i> Acesso em Dispositivos Móveis</h4>
+                <p>O AvesproMAX é totalmente responsivo e pode ser acessado de smartphones e tablets. A interface se adapta automaticamente ao tamanho da tela para uma experiência otimizada em qualquer dispositivo.</p>
             </div>
+        </section>
 
-            <div class="card">
-                <h3>Lotes Registrados</h3>
-                <div class="table-container">
-                    <table id="lote-table">
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Tipo</th>
-                                <th>Raça</th>
-                                <th>Quantidade</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Registros serão adicionados aqui -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div id="incubadora" class="tab-content">
-            <h2><i class="fas fa-temperature-high"></i> Controle de Incubadora</h2>
+        <!-- Suporte -->
+        <section class="section">
+            <h2><i class="fas fa-headset"></i> Suporte e Contato</h2>
+            <p>Para dúvidas, sugestões ou suporte técnico, utilize os canais de contato disponíveis:</p>
             
             <div class="cards">
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Ovos em Incubação</div>
-                        <div class="card-icon"><i class="fas fa-egg"></i></div>
-                    </div>
-                    <div class="card-value" id="ovos-incubacao">0</div>
-                    <small>Total de ovos atualmente em incubação</small>
+                    <div class="card-title"><i class="fab fa-whatsapp"></i> WhatsApp</div>
+                    <p>Entre em contato diretamente pelo WhatsApp para suporte rápido e personalizado.</p>
+                    <a href="https://wa.me/5531982517147?text=Ol%C3%A1%20Vim%20do%20app%20AvesproMAX!!!%0AGostaria%20de%20saber%20mais." target="_blank" class="btn"><i class="fab fa-whatsapp"></i> Falar no WhatsApp</a>
                 </div>
-                
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Ciclo Atual</div>
-                        <div class="card-icon"><i class="fas fa-sync-alt"></i></div>
-                    </div>
-                    <div class="card-value" id="ciclo-atual">-</div>
-                    <small>Dia do ciclo de incubação</small>
+                    <div class="card-title"><i class="fab fa-youtube"></i> Tutoriais em Vídeo</div>
+                    <p>Acesse nosso canal no YouTube para tutoriais em vídeo e dicas sobre o uso do sistema.</p>
+                    <a href="https://www.youtube.com/watch?v=0HStrUnnHIw" target="_blank" class="btn"><i class="fab fa-youtube"></i> Ver Tutoriais</a>
                 </div>
-                
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">Temperatura</div>
-                        <div class="card-icon"><i class="fas fa-thermometer-half"></i></div>
-                    </div>
-                    <div class="card-value" id="temp-atual">37.5°C</div>
-                    <small>Temperatura atual da incubadora</small>
+                    <div class="card-title"><i class="fab fa-telegram"></i> Grupo no Telegram</div>
+                    <p>Participe do nosso grupo no Telegram para trocar experiências com outros usuários.</p>
+                    <a href="https://t.me/avespromax" target="_blank" class="btn"><i class="fab fa-telegram"></i> Entrar no Grupo</a>
                 </div>
             </div>
-
-            <div class="card">
-                <h3>Controle de Temperatura</h3>
-                <div class="temp-control">
-                    <div class="temp-display" id="temp-display">37.5°C</div>
-                    <div class="temp-buttons">
-                        <div class="temp-button up" id="temp-up">
-                            <i class="fas fa-plus"></i>
-                        </div>
-                        <div class="temp-button down" id="temp-down">
-                            <i class="fas fa-minus"></i>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="temp-range">Ajuste de Temperatura: <span id="temp-value">37.5</span>°C</label>
-                    <input type="range" id="temp-range" class="temp-range" min="35" max="40" step="0.1" value="37.5">
-                </div>
-                
-                <div class="temp-status normal" id="temp-status">
-                    Temperatura ideal para incubação
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Registrar Nova Incubação</h3>
-                <form id="incubadora-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="raca-incubadora">Raça</label>
-                            <input type="text" id="raca-incubadora" placeholder="Ex: Plymouth Rock" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="quantidade-ovos">Quantidade de Ovos</label>
-                            <input type="number" id="quantidade-ovos" min="1" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="data-inicio">Data de Início</label>
-                            <input type="date" id="data-inicio" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="ciclo">Ciclo (dias)</label>
-                            <input type="number" id="ciclo" min="1" max="30" value="21" required>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn">Registrar Incubação</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <h3>Incubações em Andamento</h3>
-                <div class="table-container">
-                    <table id="incubadora-table">
-                        <thead>
-                            <tr>
-                                <th>Data de Início</th>
-                                <th>Raça</th>
-                                <th>Quantidade de Ovos</th>
-                                <th>Ciclo (dias)</th>
-                                <th>Status</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Registros serão adicionados aqui -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <div id="alimentacao" class="tab-content">
-            <h2><i class="fas fa-seedling"></i> Controle de Alimentação</h2>
-            
-            <div class="card">
-                <h3>Registrar Alimentação</h3>
-                <form id="alimentacao-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="tipo-racao">Tipo de Ração</label>
-                            <input type="text" id="tipo-racao" placeholder="Ex: Postura" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="quantidade-racao">Quantidade (kg)</label>
-                            <input type="number" id="quantidade-racao" min="0.1" step="0.1" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="data-alimentacao">Data</label>
-                            <input type="date" id="data-alimentacao" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="horario-alimentacao">Horário</label>
-                            <input type="time" id="horario-alimentacao" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="proxima-alimentacao">Próxima Alimentação</label>
-                        <input type="datetime-local" id="proxima-alimentacao">
-                    </div>
-                    <button type="submit" class="btn">Registrar Alimentação</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <h3>Próximas Alimentações</h3>
-                <div class="table-container">
-                    <table id="alimentacao-table">
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Horário</th>
-                                <th>Tipo de Ração</th>
-                                <th>Quantidade (kg)</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Registros serão adicionados aqui -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Configurar Alarme de Alimentação</h3>
-                <form id="alarme-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="horario-alarme">Horário do Alarme</label>
-                            <input type="time" id="horario-alarme" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="dias-alarme">Dias da Semana</label>
-                            <select id="dias-alarme" multiple>
-                                <option value="1">Segunda</option>
-                                <option value="2">Terça</option>
-                                <option value="3">Quarta</option>
-                                <option value="4">Quinta</option>
-                                <option value="5">Sexta</option>
-                                <option value="6">Sábado</option>
-                                <option value="7">Domingo</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn">Configurar Alarme</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="clima" class="tab-content">
-            <h2><i class="fas fa-cloud-sun"></i> Informações Climáticas</h2>
-            
-            <div class="weather-widget" id="weather-widget">
-                <div class="weather-header">
-                    <div>
-                        <div class="weather-location" id="weather-location">Carregando...</div>
-                        <div class="weather-description" id="weather-description">Obtendo informações...</div>
-                    </div>
-                    <div style="display: flex; align-items: center;">
-                        <span class="weather-icon" id="weather-icon">🌥️</span>
-                        <div class="weather-temp" id="weather-temp">--°C</div>
-                    </div>
-                </div>
-                <div class="weather-details">
-                    <div class="weather-detail">
-                        <i class="fas fa-tint"></i>
-                        <div>Umidade</div>
-                        <div id="weather-humidity">--%</div>
-                    </div>
-                    <div class="weather-detail">
-                        <i class="fas fa-wind"></i>
-                        <div>Vento</div>
-                        <div id="weather-wind">-- km/h</div>
-                    </div>
-                    <div class="weather-detail">
-                        <i class="fas fa-moon"></i>
-                        <div>Fase da Lua</div>
-                        <div id="moon-phase">--</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>Previsão para os Próximos Dias</h3>
-                <div id="forecast-container">
-                    <p>Carregando previsão...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Botão Reset -->
-        <div style="margin-top: 30px; text-align: center;">
-            <button id="reset-btn" class="btn btn-danger"><i class="fas fa-redo"></i> Resetar Sistema</button>
-        </div>
-    </div>
-
-    <!-- Botão Voltar ao Topo -->
-    <button id="backToTop" class="back-to-top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
-    <!-- Alarme -->
-    <div id="alarm" class="alarm">
-        <i class="fas fa-bell"></i>
-        <span id="alarm-message">Hora da alimentação!</span>
-        <span class="alarm-close" id="alarm-close"><i class="fas fa-times"></i></span>
-    </div>
-
-    <!-- Modal Reset -->
-    <div id="reset-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Confirmar Reset do Sistema</h3>
-                <span class="modal-close" id="cancel-reset">&times;</span>
-            </div>
-            <p>Esta ação irá apagar todos os dados do sistema. Digite a senha de administrador para confirmar:</p>
-            <div class="form-group">
-                <label for="reset-password">Senha de Administrador</label>
-                <input type="password" id="reset-password">
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button id="cancel-reset-btn" class="btn">Cancelar</button>
-                <button id="confirm-reset" class="btn btn-danger">Confirmar Reset</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Edição Lote -->
-    <div id="edit-lote-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Editar Lote</h3>
-                <span class="modal-close" id="close-edit-lote">&times;</span>
-            </div>
-            <form id="edit-lote-form">
-                <input type="hidden" id="edit-lote-id">
-                <div class="form-group">
-                    <label for="edit-tipo-ave">Tipo de Ave</label>
-                    <select id="edit-tipo-ave" required>
-                        <option value="galinha">Galinha</option>
-                        <option value="galo">Galo</option>
-                        <option value="pintainha">Pintainha</option>
-                        <option value="franga">Franga</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-raca-ave">Raça</label>
-                        <input type="text" id="edit-raca-ave" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-quantidade-ave">Quantidade</label>
-                        <input type="number" id="edit-quantidade-ave" min="1" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="edit-data-lote">Data de Registro</label>
-                    <input type="date" id="edit-data-lote" required>
-                </div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button type="button" id="cancel-edit-lote" class="btn">Cancelar</button>
-                    <button type="submit" class="btn">Salvar Alterações</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Edição Postura -->
-    <div id="edit-postura-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Editar Registro de Postura</h3>
-                <span class="modal-close" id="close-edit-postura">&times;</span>
-            </div>
-            <form id="edit-postura-form">
-                <input type="hidden" id="edit-postura-id">
-                <div class="form-group">
-                    <label for="edit-data-postura">Data</label>
-                    <input type="date" id="edit-data-postura" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-ovos-colhidos">Ovos Colhidos</label>
-                        <input type="number" id="edit-ovos-colhidos" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-ovos-quebrados">Ovos Quebrados</label>
-                        <input type="number" id="edit-ovos-quebrados" min="0" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="edit-ovos-defeituosos">Ovos Defeituosos</label>
-                    <input type="number" id="edit-ovos-defeituosos" min="0" required>
-                </div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button type="button" id="cancel-edit-postura" class="btn">Cancelar</button>
-                    <button type="submit" class="btn">Salvar Alterações</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Edição Incubação -->
-    <div id="edit-incubacao-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Editar Incubação</h3>
-                <span class="modal-close" id="close-edit-incubacao">&times;</span>
-            </div>
-            <form id="edit-incubacao-form">
-                <input type="hidden" id="edit-incubacao-id">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-raca-incubacao">Raça</label>
-                        <input type="text" id="edit-raca-incubadora" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-quantidade-ovos">Quantidade de Ovos</label>
-                        <input type="number" id="edit-quantidade-ovos" min="1" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-data-inicio">Data de Início</label>
-                        <input type="date" id="edit-data-inicio" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-ciclo">Ciclo (dias)</label>
-                        <input type="number" id="edit-ciclo" min="1" max="30" required>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button type="button" id="cancel-edit-incubacao" class="btn">Cancelar</button>
-                    <button type="submit" class="btn">Salvar Alterações</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Notificação -->
-    <div id="notification" class="notification">
-        <span id="notification-message"></span>
-        <span class="notification-close" id="notification-close"><i class="fas fa-times"></i></span>
+        </section>
     </div>
 
     <!-- Rodapé -->
     <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>AvesproMAX</h3>
-                <p>Sistema completo de gestão avícola 2026.</p>
-                <div class="social-links">
-                    <a href="https://wa.me/5531982517147?text=Ol%C3%A1%20Vim%20do%20app%20AvesproMAX!!!%0AGostaria%20de%20saber%20mais." target="_blank"><i class="fab fa-whatsapp"></i></a>
-                    <a href="https://www.youtube.com/watch?v=0HStrUnnHIw" target="_blank"><i class="fab fa-youtube"></i></a>
-                    <a href="https://t.me/avespromax" target="_blank"><i class="fab fa-telegram"></i></a>
-                </div>
+        <div class="container">
+            <p>&copy; 2026 AvesproMAX - Sistema de Gestão Avícola</p>
+            <p>Desenvolvido por Elias Costa Negret's</p>
+            <div class="social-links">
+                <a href="https://wa.me/5531982517147?text=Ol%C3%A1%20Vim%20do%20app%20AvesproMAX!!!%0AGostaria%20de%20saber%20mais." target="_blank"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://www.youtube.com/watch?v=0HStrUnnHIw" target="_blank"><i class="fab fa-youtube"></i></a>
+                <a href="https://t.me/avespromax" target="_blank"><i class="fab fa-telegram"></i></a>
             </div>
-            <div class="footer-section">
-                <h3>Funcionalidades</h3>
-                <ul style="list-style: none; padding: 0;">
-                    <li>Controle de Postura</li>
-                    <li>Gestão de Lotes</li>
-                    <li>Monitoramento de Incubadora</li>
-                    <li>Controle de Alimentação</li>
-                    <li>Informações Climáticas</li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h3>Suporte</h3>
-                <ul style="list-style: none; padding: 0;">
-                    <li><a href="https://t.me/avespromax" style="color: #fff;">Ajuda</a></li>
-                    <li><a href="https://t.me/avespromax" style="color: #fff;">Tutorial</a></li>
-                    <li><a href="https://t.me/avespromax" style="color: #fff;">Contato</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="copyright">
-            <p>&copy; 2026 AvesproMAX - Feito por Elias Costa Negret's</p>
         </div>
     </footer>
-
-    <script>
-        // ===== INÍCIO DAS PROTEÇÕES =====
-        
-        // Desabilitar clique direito
-        document.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            return false;
-        });
-
-        // Desabilitar seleção de texto
-        document.addEventListener('selectstart', function(e) {
-            e.preventDefault();
-            return false;
-        });
-
-        // Desabilitar arrastar elementos
-        document.addEventListener('dragstart', function(e) {
-            e.preventDefault();
-            return false;
-        });
-
-        // Bloquear atalhos de copiar (Ctrl+C, Ctrl+X)
-        document.addEventListener('keydown', function(e) {
-            // Ctrl+C ou Ctrl+X
-            if ((e.ctrlKey || e.metaKey) && (e.keyCode === 67 || e.keyCode === 88)) {
-                e.preventDefault();
-                return false;
-            }
-            
-            // F12 (abrir ferramentas de desenvolvedor)
-            if (e.keyCode === 123) {
-                e.preventDefault();
-                return false;
-            }
-            
-            // Ctrl+Shift+I (abrir ferramentas de desenvolvedor)
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 73) {
-                e.preventDefault();
-                return false;
-            }
-            
-            // Ctrl+Shift+J (abrir console)
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.keyCode === 74) {
-                e.preventDefault();
-                return false;
-            }
-            
-            // Ctrl+U (ver código fonte)
-            if ((e.ctrlKey || e.metaKey) && e.keyCode === 85) {
-                e.preventDefault();
-                return false;
-            }
-            
-            // Ctrl+S (salvar página)
-            if ((e.ctrlKey || e.metaKey) && e.keyCode === 83) {
-                e.preventDefault();
-                alert('Salvar página está desabilitado.');
-                return false;
-            }
-            
-            // Ctrl+P (imprimir)
-            if ((e.ctrlKey || e.metaKey) && e.keyCode === 80) {
-                e.preventDefault();
-                alert('A impressão desta página está desabilitada.');
-                return false;
-            }
-        });
-
-        // Detectar se as ferramentas de desenvolvedor estão abertas
-        let devtools = {open: false};
-        const threshold = 160;
-        
-        setInterval(function() {
-            if (window.outerHeight - window.innerHeight > threshold || 
-                window.outerWidth - window.innerWidth > threshold) {
-                if (!devtools.open) {
-                    devtools.open = true;
-                    document.getElementById('devtools-warning').style.display = 'block';
-                }
-            } else {
-                if (devtools.open) {
-                    devtools.open = false;
-                    document.getElementById('devtools-warning').style.display = 'none';
-                }
-            }
-        }, 500);
-
-        // Desabilitar impressão
-        window.addEventListener('beforeprint', function() {
-            document.body.innerHTML = '<h1 style="text-align: center; margin-top: 50px;">Impressão desabilitada</h1><p style="text-align: center;">Desculpe, a impressão deste conteúdo não é permitida.</p>';
-        });
-
-        // Impedir cópia via clipboard
-        document.addEventListener('copy', function(e) {
-            e.preventDefault();
-            alert('A cópia de conteúdo está desabilitada.');
-            return false;
-        });
-
-        // Impedir recorte via clipboard
-        document.addEventListener('cut', function(e) {
-            e.preventDefault();
-            alert('O recorte de conteúdo está desabilitado.');
-            return false;
-        });
-
-        // ===== FIM DAS PROTEÇÕES =====
-
-        // Dados do sistema
-        let sistema = {
-            postura: [],
-            lotes: [],
-            incubacoes: [],
-            alimentacoes: [],
-            alarmes: [],
-            temperatura: 37.5, // Temperatura padrão da incubadora
-            radioPlaying: false,
-            radioVolume: 0.5
-        };
-
-        // Player de Rádio
-        const audioPlayer = new Audio();
-        audioPlayer.src = "https://srv3.soundstream.com.br/listen/sertanejapop/radio.mp3"; // URL de exemplo de rádio online
-        audioPlayer.volume = sistema.radioVolume;
-
-        document.getElementById('radio-play').addEventListener('click', function() {
-            audioPlayer.play()
-                .then(() => {
-                    sistema.radioPlaying = true;
-                    document.getElementById('radio-play').style.display = 'none';
-                    document.getElementById('radio-stop').style.display = 'flex';
-                    exibirNotificação('Rádio Avícola sintonizada!', 'success');
-                })
-                .catch(error => {
-                    console.error('Erro ao reproduzir rádio:', error);
-                    exibirNotificação('Não foi possível reproduzir a rádio. Tente novamente.', 'error');
-                });
-        });
-
-        document.getElementById('radio-stop').addEventListener('click', function() {
-            audioPlayer.pause();
-            sistema.radioPlaying = false;
-            document.getElementById('radio-play').style.display = 'flex';
-            document.getElementById('radio-stop').style.display = 'none';
-            exibirNotificação('Rádio pausada.', 'success');
-        });
-
-        document.getElementById('volume-slider').addEventListener('input', function() {
-            const volume = this.value / 100;
-            audioPlayer.volume = volume;
-            sistema.radioVolume = volume;
-        });
-
-        // Botão Voltar ao Topo
-        const backToTopButton = document.getElementById('backToTop');
-        
-        window.addEventListener('scroll', function() {
-            if (window.pageYOffset > 300) {
-                backToTopButton.classList.add('visible');
-            } else {
-                backToTopButton.classList.remove('visible');
-            }
-        });
-        
-        backToTopButton.addEventListener('click', function() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-
-        // Carregar dados do localStorage
-        function carregarDados() {
-            const dadosSalvos = localStorage.getItem('avesproMAX');
-            if (dadosSalvos) {
-                sistema = JSON.parse(dadosSalvos);
-                atualizarInterface();
-                atualizarTemperatura();
-                
-                // Restaurar estado do rádio
-                document.getElementById('volume-slider').value = sistema.radioVolume * 100;
-                audioPlayer.volume = sistema.radioVolume;
-            }
-            
-            // Carregar usuário lembrado
-            const usuarioLembrado = localStorage.getItem('avesproMAX_usuario');
-            if (usuarioLembrado) {
-                document.getElementById('username').value = usuarioLembrado;
-                document.getElementById('remember-login').checked = true;
-            }
-        }
-
-        // Salvar dados no localStorage
-        function salvarDados() {
-            localStorage.setItem('avesproMAX', JSON.stringify(sistema));
-        }
-
-        // Data e hora atual
-        function atualizarDataHora() {
-            const agora = new Date();
-            const data = agora.toLocaleDateString('pt-BR');
-            const hora = agora.toLocaleTimeString('pt-BR');
-            
-            document.getElementById('current-date').textContent = data;
-            document.getElementById('current-time').textContent = hora;
-        }
-
-        // Sistema de login
-        document.getElementById('login-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const rememberLogin = document.getElementById('remember-login').checked;
-            
-            // Verificar se o usuário e senha estão corretos
-            if (username === 'admin' && password === 'aves2026') {
-                // Salvar usuário se opção "Lembrar" estiver marcada
-                if (rememberLogin) {
-                    localStorage.setItem('avesproMAX_usuario', username);
-                } else {
-                    localStorage.removeItem('avesproMAX_usuario');
-                }
-                
-                // Esconder tela de login e mostrar dashboard
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-                
-                // Mostrar player de rádio após login
-                document.getElementById('radio-player').classList.add('visible');
-                
-                carregarDados();
-                
-                // Feedback visual de sucesso
-                exibirNotificação('Login realizado com sucesso!', 'success');
-            } else {
-                // Mostrar mensagem de erro
-                document.getElementById('login-feedback').style.display = 'block';
-                
-                // Limpar senha após erro
-                document.getElementById('password').value = '';
-                
-                // Feedback visual de erro
-                exibirNotificação('Usuário ou senha incorretos!', 'error');
-            }
-        });
-
-        // Sistema de abas
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                const tabId = this.getAttribute('data-tab');
-                
-                // Remover classe active de todas as abas e conteúdos
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Adicionar classe active à aba atual e seu conteúdo
-                this.classList.add('active');
-                document.getElementById(tabId).classList.add('active');
-                
-                // Se for a aba de clima, carregar as informações
-                if (tabId === 'clima') {
-                    obterLocalizacao();
-                }
-            });
-        });
-
-        // Formulário de Postura
-        document.getElementById('postura-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const data = document.getElementById('data-postura').value;
-            const colhidos = parseInt(document.getElementById('ovos-colhidos-input').value);
-            const quebrados = parseInt(document.getElementById('ovos-quebrados-input').value);
-            const defeituosos = parseInt(document.getElementById('ovos-defeituosos-input').value);
-            
-            const novaPostura = {
-                id: Date.now(),
-                data: data,
-                colhidos: colhidos,
-                quebrados: quebrados,
-                defeituosos: defeituosos
-            };
-            
-            sistema.postura.push(novaPostura);
-            salvarDados();
-            atualizarPostura();
-            
-            // Resetar formulário
-            this.reset();
-            
-            // Feedback visual
-            exibirNotificação('Postura registrada com sucesso!', 'success');
-        });
-
-        // Formulário de Edição de Postura
-        document.getElementById('edit-postura-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const id = parseInt(document.getElementById('edit-postura-id').value);
-            const data = document.getElementById('edit-data-postura').value;
-            const colhidos = parseInt(document.getElementById('edit-ovos-colhidos').value);
-            const quebrados = parseInt(document.getElementById('edit-ovos-quebrados').value);
-            const defeituosos = parseInt(document.getElementById('edit-ovos-defeituosos').value);
-            
-            // Encontrar o registro e atualizar
-            const index = sistema.postura.findIndex(p => p.id === id);
-            if (index !== -1) {
-                sistema.postura[index] = {
-                    id: id,
-                    data: data,
-                    colhidos: colhidos,
-                    quebrados: quebrados,
-                    defeituosos: defeituosos
-                };
-                
-                salvarDados();
-                atualizarPostura();
-                fecharModal('edit-postura-modal');
-                
-                // Feedback visual
-                exibirNotificação('Registro de postura atualizado com sucesso!', 'success');
-            }
-        });
-
-        // Formulário de Lote
-        document.getElementById('lote-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const tipoAve = document.getElementById('tipo-ave').value;
-            const racaAve = document.getElementById('raca-ave').value;
-            const quantidadeAve = parseInt(document.getElementById('quantidade-ave').value);
-            const data = document.getElementById('data-lote').value;
-            
-            const novoLote = {
-                id: Date.now(),
-                tipo: tipoAve,
-                raca: racaAve,
-                quantidade: quantidadeAve,
-                data: data
-            };
-            
-            sistema.lotes.push(novoLote);
-            salvarDados();
-            atualizarLotes();
-            
-            // Resetar formulário
-            this.reset();
-            
-            // Feedback visual
-            exibirNotificação('Lote registrado com sucesso!', 'success');
-        });
-
-        // Formulário de Edição de Lote
-        document.getElementById('edit-lote-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const id = parseInt(document.getElementById('edit-lote-id').value);
-            const tipoAve = document.getElementById('edit-tipo-ave').value;
-            const racaAve = document.getElementById('edit-raca-ave').value;
-            const quantidadeAve = parseInt(document.getElementById('edit-quantidade-ave').value);
-            const data = document.getElementById('edit-data-lote').value;
-            
-            // Encontrar o lote e atualizar
-            const index = sistema.lotes.findIndex(l => l.id === id);
-            if (index !== -1) {
-                sistema.lotes[index] = {
-                    id: id,
-                    tipo: tipoAve,
-                    raca: racaAve,
-                    quantidade: quantidadeAve,
-                    data: data
-                };
-                
-                salvarDados();
-                atualizarLotes();
-                fecharModal('edit-lote-modal');
-                
-                // Feedback visual
-                exibirNotificação('Lote atualizado com sucesso!', 'success');
-            }
-        });
-
-        // Formulário de Incubadora
-        document.getElementById('incubadora-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const raca = document.getElementById('raca-incubadora').value;
-            const quantidade = parseInt(document.getElementById('quantidade-ovos').value);
-            const dataInicio = document.getElementById('data-inicio').value;
-            const ciclo = parseInt(document.getElementById('ciclo').value);
-            
-            const novaIncubacao = {
-                id: Date.now(),
-                raca: raca,
-                quantidade: quantidade,
-                dataInicio: dataInicio,
-                ciclo: ciclo,
-                dataFim: calcularDataFim(dataInicio, ciclo)
-            };
-            
-            sistema.incubacoes.push(novaIncubacao);
-            salvarDados();
-            atualizarIncubacoes();
-            
-            // Resetar formulário
-            this.reset();
-            
-            // Feedback visual
-            exibirNotificação('Incubação registrada com sucesso!', 'success');
-        });
-
-        // Formulário de Edição de Incubação
-        document.getElementById('edit-incubacao-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const id = parseInt(document.getElementById('edit-incubacao-id').value);
-            const raca = document.getElementById('edit-raca-incubadora').value;
-            const quantidade = parseInt(document.getElementById('edit-quantidade-ovos').value);
-            const dataInicio = document.getElementById('edit-data-inicio').value;
-            const ciclo = parseInt(document.getElementById('edit-ciclo').value);
-            
-            // Encontrar a incubação e atualizar
-            const index = sistema.incubacoes.findIndex(i => i.id === id);
-            if (index !== -1) {
-                sistema.incubacoes[index] = {
-                    id: id,
-                    raca: raca,
-                    quantidade: quantidade,
-                    dataInicio: dataInicio,
-                    ciclo: ciclo,
-                    dataFim: calcularDataFim(dataInicio, ciclo)
-                };
-                
-                salvarDados();
-                atualizarIncubacoes();
-                fecharModal('edit-incubacao-modal');
-                
-                // Feedback visual
-                exibirNotificação('Incubação atualizada com sucesso!', 'success');
-            }
-        });
-
-        // Formulário de Alimentação
-        document.getElementById('alimentacao-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const tipoRacao = document.getElementById('tipo-racao').value;
-            const quantidade = parseFloat(document.getElementById('quantidade-racao').value);
-            const data = document.getElementById('data-alimentacao').value;
-            const horario = document.getElementById('horario-alimentacao').value;
-            const proximaAlimentacao = document.getElementById('proxima-alimentacao').value;
-            
-            const novaAlimentacao = {
-                id: Date.now(),
-                tipoRacao: tipoRacao,
-                quantidade: quantidade,
-                data: data,
-                horario: horario,
-                proximaAlimentacao: proximaAlimentacao
-            };
-            
-            sistema.alimentacoes.push(novaAlimentacao);
-            salvarDados();
-            atualizarAlimentacoes();
-            
-            // Configurar alarme se houver próxima alimentação
-            if (proximaAlimentacao) {
-                configurarAlarme(proximaAlimentacao, `Hora de alimentar com ${tipoRacao}`);
-            }
-            
-            // Resetar formulário
-            this.reset();
-            
-            // Feedback visual
-            exibirNotificação('Alimentação registrada com sucesso!', 'success');
-        });
-
-        // Formulário de Alarme
-        document.getElementById('alarme-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const horario = document.getElementById('horario-alarme').value;
-            const dias = Array.from(document.getElementById('dias-alarme').selectedOptions).map(option => option.value);
-            
-            if (dias.length === 0) {
-                exibirNotificação('Selecione pelo menos um dia da semana!', 'warning');
-                return;
-            }
-            
-            const novoAlarme = {
-                id: Date.now(),
-                horario: horario,
-                dias: dias,
-                ativo: true
-            };
-            
-            sistema.alarmes.push(novoAlarme);
-            salvarDados();
-            
-            // Resetar formulário
-            this.reset();
-            
-            // Feedback visual
-            exibirNotificação('Alarme configurado com sucesso!', 'success');
-        });
-
-        // Controle de temperatura da incubadora
-        document.getElementById('temp-up').addEventListener('click', function() {
-            ajustarTemperatura(0.1);
-        });
-
-        document.getElementById('temp-down').addEventListener('click', function() {
-            ajustarTemperatura(-0.1);
-        });
-
-        document.getElementById('temp-range').addEventListener('input', function() {
-            const temp = parseFloat(this.value);
-            sistema.temperatura = temp;
-            atualizarTemperatura();
-            salvarDados();
-        });
-
-        function ajustarTemperatura(delta) {
-            sistema.temperatura += delta;
-            
-            // Limitar temperatura entre 35°C e 40°C
-            if (sistema.temperatura < 35) sistema.temperatura = 35;
-            if (sistema.temperatura > 40) sistema.temperatura = 40;
-            
-            atualizarTemperatura();
-            salvarDados();
-        }
-
-        function atualizarTemperatura() {
-            const temp = sistema.temperatura;
-            document.getElementById('temp-atual').textContent = temp.toFixed(1) + '°C';
-            document.getElementById('temp-display').textContent = temp.toFixed(1) + '°C';
-            document.getElementById('temp-value').textContent = temp.toFixed(1);
-            document.getElementById('temp-range').value = temp;
-            
-            // Atualizar status da temperatura
-            const statusElement = document.getElementById('temp-status');
-            statusElement.classList.remove('normal', 'high', 'low');
-            
-            if (temp >= 37 && temp <= 38) {
-                statusElement.textContent = 'Temperatura ideal para incubação';
-                statusElement.classList.add('normal');
-            } else if (temp > 38) {
-                statusElement.textContent = 'Temperatura alta! Ajuste para evitar problemas.';
-                statusElement.classList.add('high');
-            } else {
-                statusElement.textContent = 'Temperatura baixa! Ajuste para garantir o desenvolvimento.';
-                statusElement.classList.add('low');
-            }
-        }
-
-        // Funções de atualização da interface
-        function atualizarInterface() {
-            atualizarPostura();
-            atualizarLotes();
-            atualizarIncubacoes();
-            atualizarAlimentacoes();
-        }
-
-        function atualizarPostura() {
-            // Atualizar cards
-            const totalColhidos = sistema.postura.reduce((sum, p) => sum + p.colhidos, 0);
-            const totalQuebrados = sistema.postura.reduce((sum, p) => sum + p.quebrados, 0);
-            const totalDefeituosos = sistema.postura.reduce((sum, p) => sum + p.defeituosos, 0);
-            
-            document.getElementById('ovos-colhidos').textContent = totalColhidos;
-            document.getElementById('ovos-quebrados').textContent = totalQuebrados;
-            document.getElementById('ovos-defeituosos').textContent = totalDefeituosos;
-            
-            // Atualizar tabela
-            const tabela = document.querySelector('#postura-table tbody');
-            tabela.innerHTML = '';
-            
-            sistema.postura.forEach(postura => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${formatarData(postura.data)}</td>
-                    <td>${postura.colhidos}</td>
-                    <td>${postura.quebrados}</td>
-                    <td>${postura.defeituosos}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-edit" onclick="editarPostura(${postura.id})">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <button class="btn-delete" onclick="excluirPostura(${postura.id})">
-                                <i class="fas fa-trash"></i> Excluir
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tabela.appendChild(tr);
-            });
-        }
-
-        function atualizarLotes() {
-            // Atualizar cards
-            const totalAves = sistema.lotes.reduce((sum, l) => sum + l.quantidade, 0);
-            const racaPrincipal = sistema.lotes.length > 0 ? sistema.lotes[0].raca : '-';
-            
-            document.getElementById('total-aves').textContent = totalAves;
-            document.getElementById('raca-principal').textContent = racaPrincipal;
-            
-            // Atualizar tabela
-            const tabela = document.querySelector('#lote-table tbody');
-            tabela.innerHTML = '';
-            
-            sistema.lotes.forEach(lote => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${formatarData(lote.data)}</td>
-                    <td>${lote.tipo}</td>
-                    <td>${lote.raca}</td>
-                    <td>${lote.quantidade}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-edit" onclick="editarLote(${lote.id})">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <button class="btn-delete" onclick="excluirLote(${lote.id})">
-                                <i class="fas fa-trash"></i> Excluir
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tabela.appendChild(tr);
-            });
-        }
-
-        function atualizarIncubacoes() {
-            // Atualizar cards
-            const totalOvos = sistema.incubacoes.reduce((sum, i) => sum + i.quantidade, 0);
-            const cicloAtual = sistema.incubacoes.length > 0 ? calcularDiaCiclo(sistema.incubacoes[0]) : '-';
-            
-            document.getElementById('ovos-incubacao').textContent = totalOvos;
-            document.getElementById('ciclo-atual').textContent = cicloAtual;
-            
-            // Atualizar tabela
-            const tabela = document.querySelector('#incubadora-table tbody');
-            tabela.innerHTML = '';
-            
-            sistema.incubacoes.forEach(incubacao => {
-                const tr = document.createElement('tr');
-                const diaCiclo = calcularDiaCiclo(incubacao);
-                const status = diaCiclo >= incubacao.ciclo ? 'Concluído' : `Dia ${diaCiclo}/${incubacao.ciclo}`;
-                
-                tr.innerHTML = `
-                    <td>${formatarData(incubacao.dataInicio)}</td>
-                    <td>${incubacao.raca}</td>
-                    <td>${incubacao.quantidade}</td>
-                    <td>${incubacao.ciclo}</td>
-                    <td>${status}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-edit" onclick="editarIncubacao(${incubacao.id})">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <button class="btn-delete" onclick="excluirIncubacao(${incubacao.id})">
-                                <i class="fas fa-trash"></i> Excluir
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tabela.appendChild(tr);
-            });
-        }
-
-        function atualizarAlimentacoes() {
-            // Atualizar tabela
-            const tabela = document.querySelector('#alimentacao-table tbody');
-            tabela.innerHTML = '';
-            
-            sistema.alimentacoes.forEach(alimentacao => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${formatarData(alimentacao.data)}</td>
-                    <td>${alimentacao.horario}</td>
-                    <td>${alimentacao.tipoRacao}</td>
-                    <td>${alimentacao.quantidade} kg</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-delete" onclick="removerAlimentacao(${alimentacao.id})">
-                                <i class="fas fa-trash"></i> Remover
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tabela.appendChild(tr);
-            });
-        }
-
-        // Funções auxiliares
-        function formatarData(dataString) {
-            const data = new Date(dataString);
-            return data.toLocaleDateString('pt-BR');
-        }
-
-        function calcularDataFim(dataInicio, dias) {
-            const data = new Date(dataInicio);
-            data.setDate(data.getDate() + dias);
-            return data.toISOString().split('T')[0];
-        }
-
-        function calcularDiaCiclo(incubacao) {
-            const dataInicio = new Date(incubacao.dataInicio);
-            const hoje = new Date();
-            
-            // Se a data de início for futura, retorna 0
-            if (dataInicio > hoje) {
-                return 0;
-            }
-            
-            const diffTime = Math.abs(hoje - dataInicio);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            return Math.min(diffDays, incubacao.ciclo);
-        }
-
-        function configurarAlarme(dataHora, mensagem) {
-            const dataAlarme = new Date(dataHora);
-            const agora = new Date();
-            const diffTime = dataAlarme - agora;
-            
-            if (diffTime > 0) {
-                setTimeout(() => {
-                    exibirAlarme(mensagem);
-                }, diffTime);
-            }
-        }
-
-        function exibirAlarme(mensagem) {
-            const alarme = document.getElementById('alarm');
-            document.getElementById('alarm-message').textContent = mensagem;
-            alarme.style.display = 'block';
-            
-            // Tocar som de alarme (simulado)
-            try {
-                const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3');
-                audio.play().catch(e => console.log('Erro ao reproduzir áudio:', e));
-            } catch (e) {
-                console.log('Erro ao criar objeto de áudio:', e);
-            }
-        }
-
-        document.getElementById('alarm-close').addEventListener('click', function() {
-            document.getElementById('alarm').style.display = 'none';
-        });
-
-        function removerAlimentacao(id) {
-            if (confirm('Tem certeza que deseja remover este registro de alimentação?')) {
-                sistema.alimentacoes = sistema.alimentacoes.filter(a => a.id !== id);
-                salvarDados();
-                atualizarAlimentacoes();
-                exibirNotificação('Registro de alimentação removido!', 'success');
-            }
-        }
-
-        function editarPostura(id) {
-            const postura = sistema.postura.find(p => p.id === id);
-            if (postura) {
-                document.getElementById('edit-postura-id').value = postura.id;
-                document.getElementById('edit-data-postura').value = postura.data;
-                document.getElementById('edit-ovos-colhidos').value = postura.colhidos;
-                document.getElementById('edit-ovos-quebrados').value = postura.quebrados;
-                document.getElementById('edit-ovos-defeituosos').value = postura.defeituosos;
-                
-                abrirModal('edit-postura-modal');
-            }
-        }
-
-        function excluirPostura(id) {
-            if (confirm('Tem certeza que deseja excluir este registro de postura?')) {
-                sistema.postura = sistema.postura.filter(p => p.id !== id);
-                salvarDados();
-                atualizarPostura();
-                exibirNotificação('Registro de postura excluído com sucesso!', 'success');
-            }
-        }
-
-        function editarLote(id) {
-            const lote = sistema.lotes.find(l => l.id === id);
-            if (lote) {
-                document.getElementById('edit-lote-id').value = lote.id;
-                document.getElementById('edit-tipo-ave').value = lote.tipo;
-                document.getElementById('edit-raca-ave').value = lote.raca;
-                document.getElementById('edit-quantidade-ave').value = lote.quantidade;
-                document.getElementById('edit-data-lote').value = lote.data;
-                
-                abrirModal('edit-lote-modal');
-            }
-        }
-
-        function excluirLote(id) {
-            if (confirm('Tem certeza que deseja excluir este lote?')) {
-                sistema.lotes = sistema.lotes.filter(l => l.id !== id);
-                salvarDados();
-                atualizarLotes();
-                exibirNotificação('Lote excluído com sucesso!', 'success');
-            }
-        }
-
-        function editarIncubacao(id) {
-            const incubacao = sistema.incubacoes.find(i => i.id === id);
-            if (incubacao) {
-                document.getElementById('edit-incubacao-id').value = incubacao.id;
-                document.getElementById('edit-raca-incubadora').value = incubacao.raca;
-                document.getElementById('edit-quantidade-ovos').value = incubacao.quantidade;
-                document.getElementById('edit-data-inicio').value = incubacao.dataInicio;
-                document.getElementById('edit-ciclo').value = incubacao.ciclo;
-                
-                abrirModal('edit-incubacao-modal');
-            }
-        }
-
-        function excluirIncubacao(id) {
-            if (confirm('Tem certeza que deseja excluir esta incubação?')) {
-                sistema.incubacoes = sistema.incubacoes.filter(i => i.id !== id);
-                salvarDados();
-                atualizarIncubacoes();
-                exibirNotificação('Incubação excluída com sucesso!', 'success');
-            }
-        }
-
-        function abrirModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
-        }
-
-        function fecharModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Sistema de reset
-        document.getElementById('reset-btn').addEventListener('click', function() {
-            abrirModal('reset-modal');
-        });
-
-        document.getElementById('cancel-reset').addEventListener('click', function() {
-            fecharModal('reset-modal');
-        });
-
-        document.getElementById('cancel-reset-btn').addEventListener('click', function() {
-            fecharModal('reset-modal');
-        });
-
-        document.getElementById('confirm-reset').addEventListener('click', function() {
-            const senha = document.getElementById('reset-password').value;
-            
-            if (senha === 'admin123') {
-                // Resetar sistema
-                sistema = {
-                    postura: [],
-                    lotes: [],
-                    incubacoes: [],
-                    alimentacoes: [],
-                    alarmes: [],
-                    temperatura: 37.5,
-                    radioPlaying: false,
-                    radioVolume: 0.5
-                };
-                
-                localStorage.removeItem('avesproMAX');
-                atualizarInterface();
-                atualizarTemperatura();
-                
-                // Resetar player de rádio
-                audioPlayer.pause();
-                document.getElementById('radio-play').style.display = 'flex';
-                document.getElementById('radio-stop').style.display = 'none';
-                document.getElementById('volume-slider').value = 50;
-                
-                fecharModal('reset-modal');
-                exibirNotificação('Sistema resetado com sucesso!', 'success');
-            } else {
-                exibirNotificação('Senha incorreta!', 'error');
-            }
-        });
-
-        // Modal de edição de lote
-        document.getElementById('close-edit-lote').addEventListener('click', function() {
-            fecharModal('edit-lote-modal');
-        });
-
-        document.getElementById('cancel-edit-lote').addEventListener('click', function() {
-            fecharModal('edit-lote-modal');
-        });
-
-        // Modal de edição de postura
-        document.getElementById('close-edit-postura').addEventListener('click', function() {
-            fecharModal('edit-postura-modal');
-        });
-
-        document.getElementById('cancel-edit-postura').addEventListener('click', function() {
-            fecharModal('edit-postura-modal');
-        });
-
-        // Modal de edição de incubação
-        document.getElementById('close-edit-incubacao').addEventListener('click', function() {
-            fecharModal('edit-incubacao-modal');
-        });
-
-        document.getElementById('cancel-edit-incubacao').addEventListener('click', function() {
-            fecharModal('edit-incubacao-modal');
-        });
-
-        // Sistema de notificações
-        function exibirNotificação(mensagem, tipo = 'success') {
-            const notification = document.getElementById('notification');
-            const messageElement = document.getElementById('notification-message');
-            
-            messageElement.textContent = mensagem;
-            
-            // Remover classes anteriores
-            notification.classList.remove('error', 'warning');
-            
-            // Adicionar classe conforme o tipo
-            if (tipo === 'error') {
-                notification.classList.add('error');
-            } else if (tipo === 'warning') {
-                notification.classList.add('warning');
-            }
-            
-            // Exibir notificação
-            notification.style.display = 'block';
-            
-            // Ocultar após 3 segundos
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-
-        document.getElementById('notification-close').addEventListener('click', function() {
-            document.getElementById('notification').style.display = 'none';
-        });
-
-        // Clima e informações de localização
-        function obterLocalizacao() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        const { latitude, longitude } = position.coords;
-                        obterClima(latitude, longitude);
-                        obterFaseLua();
-                    },
-                    error => {
-                        console.error('Erro ao obter localização:', error);
-                        // Usar localização padrão (Minas Gerais)
-                        obterClima(-20.3881881, -43.7570211);
-                        obterFaseLua();
-                    }
-                );
-            } else {
-                console.error('Geolocalização não suportada pelo navegador');
-                // Usar localização padrão (Minas Ger)
-                obterClima(-20.3881881, -43.7570211);
-                obterFaseLua();
-            }
-        }
-
-        function obterClima(lat, lon) {
-            // Simulação de dados de clima com valores realistas
-            setTimeout(() => {
-                // Verificar se é dia ou noite
-                const agora = new Date();
-                const hora = agora.getHours();
-                const ehNoite = hora < 6 || hora >= 18;
-                
-                // Dados climáticos realistas para noite fria
-                const clima = {
-                    location: 'Sua Localização',
-                    temp: 21, // Temperatura correta para noite fria
-                    description: ehNoite ? 'Céu nublado' : 'Parcialmente nublado',
-                    humidity: 74, // Umidade realista
-                    wind: 15, // Vento moderado
-                    icon: ehNoite ? '🌥️' : '⛅'
-                };
-                
-                document.getElementById('weather-location').textContent = clima.location;
-                document.getElementById('weather-temp').textContent = `${clima.temp}°C`;
-                document.getElementById('weather-description').textContent = clima.description;
-                document.getElementById('weather-icon').textContent = clima.icon;
-                document.getElementById('weather-humidity').textContent = `${clima.humidity}%`;
-                document.getElementById('weather-wind').textContent = `${clima.wind} km/h`;
-                
-                // Simular previsão para os próximos dias
-                const forecastContainer = document.getElementById('forecast-container');
-                forecastContainer.innerHTML = '';
-                
-                // Obter o dia da semana atual
-                const diasSemana = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-                const diaAtual = agora.getDay();
-                
-                const previsoes = [];
-                
-                // Começar com o dia atual e mostrar os próximos 4 dias
-                for (let i = 0; i < 5; i++) {
-                    const diaIndex = (diaAtual + i) % 7;
-                    previsoes.push({
-                        dia: i === 0 ? 'Hoje' : diasSemana[diaIndex],
-                        temp: Math.floor(Math.random() * 8) + 18, // Temperaturas entre 18-26°C
-                        desc: ['Nublado', 'Parcialmente nublado', 'Ensolarado'][Math.floor(Math.random() * 3)]
-                    });
-                }
-                
-                previsoes.forEach(previsao => {
-                    const div = document.createElement('div');
-                    div.className = 'card';
-                    div.style.marginBottom = '10px';
-                    div.innerHTML = `
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>${previsao.dia}</div>
-                            <div>${previsao.temp}°C</div>
-                            <div>${previsao.desc}</div>
-                        </div>
-                    `;
-                    forecastContainer.appendChild(div);
-                });
-            }, 1000);
-        }
-
-        function obterFaseLua() {
-            // Cálculo preciso da fase da lua
-            const agora = new Date();
-            
-            // Data de referência: 6 de janeiro de 2000 (lua nova conhecida) - em UTC
-            const dataRef = new Date(Date.UTC(2000, 0, 6, 18, 14, 0));
-            
-            // Calcular diferença em dias desde a data de referência
-            const diffMs = agora - dataRef;
-            const diffDias = diffMs / (1000 * 60 * 60 * 24);
-            
-            // Ciclo lunar médio: 29.53058867 dias
-            const cicloLunar = 29.53058867;
-            
-            // Calcular a fase atual (0 a 1)
-            const faseAtual = ((diffDias % cicloLunar) + cicloLunar) % cicloLunar / cicloLunar;
-            
-            // Determinar a fase da lua com base na porcentagem do ciclo
-            let faseLua;
-            let iconeLua;
-            
-            if (faseAtual < 0.03 || faseAtual > 0.97) {
-                faseLua = "Lua Nova";
-                iconeLua = "🌑";
-            } else if (faseAtual < 0.22) {
-                faseLua = "Lua Crescente";
-                iconeLua = "🌒";
-            } else if (faseAtual < 0.28) {
-                faseLua = "Quarto Crescente";
-                iconeLua = "🌓";
-            } else if (faseAtual < 0.47) {
-                faseLua = "Lua Gibosa Crescente";
-                iconeLua = "🌔";
-            } else if (faseAtual < 0.53) {
-                faseLua = "Lua Cheia";
-                iconeLua = "🌕";
-            } else if (faseAtual < 0.72) {
-                faseLua = "Lua Gibosa Minguante";
-                iconeLua = "🌖";
-            } else if (faseAtual < 0.78) {
-                faseLua = "Quarto Minguante";
-                iconeLua = "🌗";
-            } else {
-                faseLua = "Lua Minguante";
-                iconeLua = "🌘";
-            }
-            
-            document.getElementById('moon-phase').textContent = `${iconeLua} ${faseLua}`;
-        }
-
-        // Verificar alarmes recorrentes
-        function verificarAlarmesRecorrentes() {
-            const agora = new Date();
-            const diaSemana = agora.getDay() === 0 ? 7 : agora.getDay(); // 1=Segunda, 7=Domingo
-            const horarioAtual = agora.toTimeString().substring(0, 5); // HH:MM
-            
-            sistema.alarmes.forEach(alarme => {
-                if (alarme.ativo && alarme.dias.includes(diaSemana.toString()) && alarme.horario === horarioAtual) {
-                    exibirAlarme('Hora da alimentação!');
-                }
-            });
-        }
-
-        // Inicialização
-        setInterval(atualizarDataHora, 1000);
-        atualizarDataHora();
-        
-        // Verificar alarmes a cada minuto
-        setInterval(verificarAlarmesRecorrentes, 60000);
-        
-        // Configurar data atual como padrão nos formulários
-        window.addEventListener('load', function() {
-            const hoje = new Date().toISOString().split('T')[0];
-            document.querySelectorAll('input[type="date"]').forEach(input => {
-                if (!input.value) input.value = hoje;
-            });
-            
-            // Inicializar temperatura
-            atualizarTemperatura();
-        });
-    </script>
 </body>
 </html>
