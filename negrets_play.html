@@ -1,0 +1,3004 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Negret's Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        :root {
+            --netflix-red: #4F46E5; /* Cor alterada de vermelho para roxo */
+            --netflix-dark: #141414;
+            --netflix-gray: #333;
+            --netflix-light-gray: #808080;
+            --netflix-white: #fff;
+            --netflix-black: #000;
+            --plyr-color-main: var(--netflix-red);
+            --color-danger: #ff4d4d;
+            --color-favorite: #f5c518;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Netflix Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: var(--netflix-dark);
+            color: var(--netflix-white);
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* Netflix Header Style */
+        #app-top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 4%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 10%, transparent);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.4s;
+        }
+        
+        #app-top-bar.scrolled {
+            background-color: var(--netflix-dark);
+        }
+        
+        .top-bar-container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        #main-menu-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .netflix-logo {
+            height: 45px;
+            margin-right: 25px;
+        }
+        
+        #content-filters-container {
+            flex-grow: 1;
+        }
+        
+        #content-filters {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-tab {
+            color: var(--netflix-white);
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            opacity: 0.7;
+            padding: 5px 0;
+            position: relative;
+        }
+        
+        .nav-tab.active {
+            opacity: 1;
+            font-weight: 600;
+        }
+        
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--netflix-red);
+        }
+        
+        #user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            background-color: var(--netflix-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        /* Main Content - Centralizado */
+        main {
+            padding: 100px 4% 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            flex-grow: 1;
+        }
+        
+        .category-section {
+            margin-bottom: 40px;
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .category-header h2 {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        
+        .category-grid {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 10px 0;
+            scrollbar-width: none;
+        }
+        
+        .category-grid::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category-grid.grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            overflow-x: hidden;
+            gap: 15px;
+        }
+        
+        .content-card {
+            flex: 0 0 auto;
+            width: 250px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            position: relative;
+        }
+        
+        .content-card:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+        
+        .content-card-poster {
+            aspect-ratio: 16 / 9;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            background-color: var(--netflix-gray);
+        }
+        
+        .content-card-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s;
+        }
+        
+        .content-card-poster .placeholder-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--netflix-light-gray);
+            font-size: 40px;
+        }
+        
+        .content-card-poster .gradient-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+        
+        .content-info {
+            padding: 10px 5px 0;
+        }
+        
+        .content-title {
+            font-size: 16px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .progress-bar-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--netflix-red);
+            width: 0%;
+        }
+        
+        /* Modal Styles */
+        dialog {
+            border: none;
+            background: transparent;
+            padding: 0;
+            max-width: calc(100vw - 40px);
+            max-height: calc(100vh - 40px);
+            color: var(--netflix-white);
+        }
+        
+        dialog[open] {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        dialog.is-closing {
+            animation: fadeOut 0.2s ease-out forwards;
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.95); }
+        }
+        
+        dialog::backdrop {
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--netflix-dark);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(20,20,20,0.9);
+        }
+        
+        .modal-header h2 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .close-modal-btn {
+            background: none;
+            border: none;
+            color: var(--netflix-white);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        /* Login Modal Styles - Melhorado */
+        #login-modal .modal-content {
+            width: 90vw;
+            max-width: 500px;
+            margin: 0 auto;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+        
+        #login-modal .modal-header {
+            background: linear-gradient(135deg, var(--netflix-red), #4338CA);
+            padding: 25px 30px;
+            border-bottom: none;
+        }
+        
+        #login-modal .modal-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        #login-modal .modal-body {
+            padding: 30px;
+            background-color: var(--netflix-dark);
+        }
+        
+        #login-modal .form-group {
+            margin-bottom: 25px;
+        }
+        
+        #login-modal .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        #login-modal .form-input {
+            width: 100%;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--netflix-white);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        #login-modal .form-input:focus {
+            outline: none;
+            border-color: var(--netflix-red);
+            background-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+        }
+        
+        #login-modal .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--netflix-red);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+        
+        #login-modal .submit-btn:hover {
+            background-color: #4338CA;
+        }
+        
+        /* Details Modal */
+        #details-modal .modal-content {
+            width: 90vw;
+            max-width: 1000px;
+        }
+        
+        .details-player-wrapper {
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            background-color: var(--netflix-black);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #player-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #details-poster {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        #details-info {
+            padding: 20px;
+        }
+        
+        .details-title-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        #detail-title {
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .details-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            color: var(--netflix-light-gray);
+            font-size: 14px;
+        }
+        
+        .details-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .details-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .action-btn {
+            background-color: rgba(109,109,110,0.7);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .action-btn:hover {
+            background-color: rgba(109,109,110,0.4);
+        }
+        
+        .action-btn.primary {
+            background-color: var(--netflix-white);
+            color: var(--netflix-black);
+        }
+        
+        .action-btn.primary:hover {
+            background-color: rgba(255,255,255,0.8);
+        }
+        
+        .synopsis {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        /* Series Episodes */
+        #series-content-container {
+            margin-top: 30px;
+        }
+        
+        .season-header {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--netflix-gray);
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .season-header h3 {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .episodes-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .episode-card {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background-color: rgba(109,109,110,0.1);
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .episode-card:hover {
+            background-color: rgba(109,109,110,0.3);
+        }
+        
+        .episode-poster {
+            width: 120px;
+            height: 70px;
+            flex-shrink: 0;
+            background-color: var(--netflix-gray);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .episode-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .episode-info {
+            flex-grow: 1;
+        }
+        
+        .episode-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .episode-description {
+            font-size: 13px;
+            color: var(--netflix-light-gray);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* Search Modal */
+        #search-modal .modal-content {
+            width: 90vw;
+            max-width: 800px;
+        }
+        
+        #search-input {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: rgba(109,109,110,0.2);
+            border: 1px solid rgba(109,109,110,0.5);
+            border-radius: 4px;
+            color: var(--netflix-white);
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        #search-input:focus {
+            outline: none;
+            border-color: var(--netflix-white);
+        }
+        
+        #search-results-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .search-result-card {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .search-result-card:hover {
+            transform: scale(1.03);
+        }
+        
+        /* Profile Modal */
+        #profile-modal .modal-content,
+        #password-modal .modal-content {
+            width: 90vw;
+            max-width: 500px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: rgba(109,109,110,0.2);
+            border: 1px solid rgba(109,109,110,0.5);
+            border-radius: 4px;
+            color: var(--netflix-white);
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--netflix-white);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--netflix-red);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #4338CA; /* Cor alterada para um tom mais escuro de roxo */
+        }
+        
+        .profile-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .profile-card {
+            padding: 15px;
+            background-color: rgba(109,109,110,0.2);
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .profile-card.active {
+            border: 2px solid var(--netflix-red);
+        }
+        
+        .profile-name {
+            font-weight: 500;
+        }
+        
+        .delete-profile-btn {
+            background: none;
+            border: none;
+            color: var(--color-danger);
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        /* Player Customizations */
+        .plyr--video .plyr__controls {
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+            padding: 20px;
+            border: none;
+        }
+        
+        .plyr__control--overlaid {
+            background: rgba(79,70,229,0.8) !important; /* Cor alterada para roxo */
+        }
+        
+        .plyr--full-ui input[type=range] {
+            color: var(--netflix-red);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            #app-top-bar {
+                padding: 15px 4%;
+            }
+            
+            .netflix-logo {
+                height: 30px;
+                margin-right: 15px;
+            }
+            
+            #content-filters {
+                gap: 10px;
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+            
+            .nav-tab {
+                font-size: 12px;
+                white-space: nowrap;
+            }
+            
+            main {
+                padding-top: 80px;
+            }
+            
+            .content-card {
+                width: 180px;
+            }
+            
+            .category-grid.grid-view {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            #details-modal .modal-content {
+                width: 95vw;
+            }
+            
+            #detail-title {
+                font-size: 20px;
+            }
+            
+            .episodes-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .content-card {
+                width: 150px;
+            }
+            
+            .category-header h2 {
+                font-size: 18px;
+            }
+            
+            .details-actions {
+                flex-wrap: wrap;
+            }
+            
+            .action-btn {
+                flex-grow: 1;
+                justify-content: center;
+            }
+            
+            #login-modal .modal-content {
+                width: 95vw;
+            }
+            
+            #login-modal .modal-header {
+                padding: 20px;
+            }
+            
+            #login-modal .modal-body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="dark">
+    <div id="app-top-bar">
+        <div class="top-bar-container">
+            <div id="main-menu-container">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwzXRGzRDgPW52FKAClinxuPtiNSsIy4_3dyK3P6KorQ&s" alt="Negret's Player" class="netflix-logo" style="height: 45px;">
+                <div id="content-filters-container">
+                    <div id="content-filters">
+                        <button class="nav-tab active" data-category="live" onclick="a.renderContent('live')">Canais</button>
+                        <button class="nav-tab" data-category="vod" onclick="a.renderContent('vod')">Filmes</button>
+                        <button class="nav-tab" data-category="series" onclick="a.renderContent('series')">Séries</button>
+                    </div>
+                </div>
+            </div>
+            <div id="user-menu">
+                <button class="btn-icon" onclick="a.ui.showSearchModal('live')" title="Buscar"><i class="fas fa-search"></i></button>
+                <div class="user-avatar" onclick="a.ui.showProfileModal()">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <main id="main-container">
+        <div id="main-content"><h2 style="text-align: center;">Carregando dados...</h2></div>
+    </main>
+    
+    <dialog id="profile-modal"></dialog>
+    <dialog id="login-modal"></dialog>
+    <dialog id="details-modal"></dialog>
+    <dialog id="search-modal"></dialog>
+    <dialog id="password-modal"></dialog>
+
+<script>
+const a = {
+    c: {
+        CORS_PROXY: 'https://corsproxy.io/?',
+        IMAGE_PROXY_RESIZER: 'https://images.weserv.nl/?url=',
+        IMAGE_COMPRESSION: { MAX_WIDTH: 300, JPEG_QUALITY: 75, TV_SQUARE_SIZE: 300 },
+        REQUEST_TIMEOUT: 20000,
+        ADULT_PASSWORD_ENC: 'MjAyNA==',
+        ADULT_KEYWORDS_ENC: 'YWR1bHRvLGFkdWx0cyxzZXgseHh4LGhhcmRjb3JlLHByaXZhZG8scHJpdmF0ZSx2aXAscGxheWJveSxw' + 'cml2ZSxob3QsZXJvdGljLHJlZGxpZ2h0LG9ubHlmYW5zLHJlZHR1YmUseHZpZGVvcyxwb3JuLHNleG8sZXJvdGljbyxw' + 'cml2ZSxicmFzaWxlaXJpbmhhcyx0ZXN0ZSBkZSBmaWRlbGlkYWRl',
+        TOP_PRIORITY_KEYWORDS: ['telecine', 'hbo', 'cinemax', 'megapix', 'warner', 'sony', 'axn', 'universal', 'studiouniversal', 'syfy', 'tnt', 'space', 'a&e', 'filmes', 'series', 'séries'],
+        CHILDREN_KEYWORDS: ['cartoon', 'discovery kids', 'disney', 'nick', 'nickelodeon', 'gloob', 'infantil', 'desenho'],
+        VARIETY_KEYWORDS: ['variedades', 'documentarios', 'noticias', 'gnt', 'viva', 'multishow', 'natgeo', 'discovery'],
+        FREE_TV_KEYWORDS: ['globo', 'sbt', 'record', 'band', 'redetv', 'cultura', 'gazeta', 'futura'],
+        SPORTS_KEYWORDS: ['sportv', 'espn', 'fox sports', 'bandsports', 'premiere', 'combate', 'esporte', 'futebol'],
+    },
+    s: { 
+        profiles: [], 
+        pIdx: -1, 
+        xtream: { baseUrl: '', user: '', pass: '' }, 
+        cache: { live: [], vod: {}, series: {}, live_cat: [], vod_cat: [], series_cat: [] }, 
+        curProfile: { progress: {} }, 
+        curItem: null, 
+        showAdult: false, 
+        showBanners: true, 
+        isTvMode: false, 
+        isLgWebOsMode: false, 
+        isTvModeCovers: false, 
+        isGridMode: false, 
+        inputMode: 'touch', 
+        activePlayEl: null, 
+        reqQueue: [], 
+        activeRequests: 0, 
+        activeCat: 'live', 
+        scrollPos: { live: 0, vod: 0, series: 0 }, 
+        isSwitchingTabs: false 
+    },
+    p: {
+        instance: null, 
+        hls: null, 
+        lazyObserver: null, 
+        placeholderObserver: null, 
+        sectionObserver: null, 
+        infiniteScrollObserver: null, 
+        progInterval: null, 
+        currentId: null, 
+        isIdleScheduled: false, 
+        isSettingUp: false,
+        
+        setup(item, type, startAt = 0) {
+            if (this.isSettingUp) return;
+            this.isSettingUp = true;
+            try {
+                this.destroy();
+                let playbackId, extension;
+                if (type === 'live') {
+                    playbackId = item.stream_id;
+                    extension = 'm3u8';
+                } else {
+                    playbackId = item.stream_id || item.id;
+                    const containerExtension = item.container_extension || 'mp4';
+                    extension = ['mp4', 'mkv'].includes(containerExtension) ? containerExtension : 'mp4';
+                }
+                this.currentId = playbackId;
+                const pCont = document.getElementById('player-container');
+                if (!pCont) { this.isSettingUp = false; return; }
+                pCont.innerHTML = '';
+                pCont.classList.remove('hidden');
+                document.getElementById('details-poster')?.style.setProperty('opacity', '0');
+                document.querySelector('.details-player-wrapper .placeholder-icon')?.style.setProperty('display', 'none');
+                
+                const video = document.createElement('video');
+                video.id = 'video-player'; 
+                video.playsinline = true; 
+                video.controls = true; 
+                video.crossOrigin = "anonymous"; 
+                video.classList.add('video-fit');
+                pCont.appendChild(video);
+                
+                let isAudioReady = false;
+                const onPlayInteraction = () => {
+                    if (isAudioReady) return;
+                    video.removeEventListener('play', onPlayInteraction, true);
+                    video.removeEventListener('playing', onPlayInteraction, true);
+                    const success = a.audioEngine.init(video);
+                    if (!success) { 
+                        a.ui.closeModal(document.getElementById('details-modal')); 
+                        alert("Falha na revitalização do áudio. A reprodução foi interrompida para garantir a qualidade."); 
+                        return; 
+                    }
+                    isAudioReady = true;
+                };
+                
+                video.addEventListener('play', onPlayInteraction, true);
+                video.addEventListener('playing', onPlayInteraction, true);
+                
+                const { baseUrl, user, pass } = a.s.xtream;
+                let url = '';
+                if (type === 'live') { 
+                    url = `${baseUrl}/live/${user}/${pass}/${playbackId}.${extension}`; 
+                } else if (type === 'vod') { 
+                    url = `${baseUrl}/movie/${user}/${pass}/${playbackId}.${extension}`; 
+                } else { 
+                    url = `${baseUrl}/series/${user}/${pass}/${playbackId}.${extension}`; 
+                }
+                
+                if (Hls.isSupported() && url.includes('.m3u8')) {
+                    let hlsConfig = { 
+                        capLevelToPlayerSize: true, 
+                        maxBufferLength: 45, 
+                        maxMaxBufferLength: 90, 
+                        enableWorker: true, 
+                        startLevel: -1, 
+                        fragLoadingRetryDelay: 1000, 
+                        fragLoadingMaxRetry: 4, 
+                        levelLoadingRetryDelay: 1000, 
+                        levelLoadingMaxRetry: 4 
+                    };
+                    
+                    if (a.s.isTvMode) {
+                        hlsConfig.maxBufferLength = 30;
+                        hlsConfig.maxMaxBufferLength = 60;
+                    }
+                    
+                    this.hls = new Hls(hlsConfig);
+                    this.hls.loadSource(url);
+                    this.hls.attachMedia(video);
+                    
+                    this.hls.on(Hls.Events.ERROR, (event, data) => {
+                        if (data.fatal) {
+                            switch (data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    this.hls.destroy();
+                                    this.hls = null;
+                                    video.src = url;
+                                    video.play().catch(() => { 
+                                        a.ui.closeModal(document.getElementById('details-modal')); 
+                                        alert("Não foi possível iniciar a reprodução."); 
+                                    });
+                                    break;
+                                default:
+                                    this.hls.destroy();
+                                    break;
+                            }
+                        }
+                    });
+                } else {
+                    video.src = url;
+                }
+                
+                this.instance = new Plyr(video, { 
+                    settings: ['quality', 'speed', 'loop', 'pip'], 
+                    i18n: { 
+                        "speed": "Velocidade", 
+                        "settings": "Ajustes", 
+                        "controls": "Controles", 
+                        "pip": "Picture-in-Picture" 
+                    }, 
+                    tooltips: { controls: true } 
+                });
+                
+                this.instance.on('ready', event => {
+                    this.isSettingUp = false;
+                    const {plyr} = event.detail, 
+                          ctrls = plyr.elements.controls, 
+                          settingsBtn = ctrls.querySelector('[data-plyr="settings"]');
+                    
+                    if (!settingsBtn) return;
+                    
+                    const aspectBtn = document.createElement('button'); 
+                    aspectBtn.type = 'button'; 
+                    aspectBtn.className = 'plyr__control plyr-aspect-ratio-btn'; 
+                    aspectBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21,3H3C1.9,3,1,3.9,1,5v14c0,1.1,0.9,2,2,2h18c1.1,0,2-0.9,2-2V5C23,3.9,22.1,3,21,3z M21,19H3V5h18V19z"/></svg>`; 
+                    aspectBtn.title = "Aspect Ratio"; 
+                    let curRatio = 0; 
+                    const ratios = ['video-fit', 'video-fill', 'video-zoom']; 
+                    aspectBtn.onclick = () => { 
+                        video.classList.remove(ratios[curRatio]); 
+                        curRatio = (curRatio + 1) % ratios.length; 
+                        video.classList.add(ratios[curRatio]); 
+                    };
+                    
+                    const syncCont = document.createElement('div'); 
+                    syncCont.style.cssText = 'display:flex; gap:5px;'; 
+                    syncCont.title = "Sincronia de Áudio"; 
+                    const syncMinus = document.createElement('button'); 
+                    syncMinus.className = 'plyr__control'; 
+                    syncMinus.innerHTML = `<i class="fa-solid fa-backward-fast"></i>`; 
+                    syncMinus.onclick = () => { video.currentTime -= 0.1; }; 
+                    const syncPlus = document.createElement('button'); 
+                    syncPlus.className = 'plyr__control'; 
+                    syncPlus.innerHTML = `<i class="fa-solid fa-forward-fast"></i>`; 
+                    syncPlus.onclick = () => { video.currentTime += 0.1; }; 
+                    syncCont.append(syncMinus, syncPlus);
+                    
+                    ctrls.insertBefore(aspectBtn, settingsBtn); 
+                    ctrls.insertBefore(syncCont, settingsBtn);
+                    ctrls.querySelectorAll('button').forEach(btn => btn.setAttribute('tabindex', 0));
+                });
+                
+                video.addEventListener('dblclick', () => { 
+                    if (a.s.isTvMode && this.instance?.fullscreen.active) 
+                        this.instance.fullscreen.exit(); 
+                });
+                
+                this.instance.on('playing', () => { 
+                    if (a.s.activePlayEl) 
+                        a.ui.updatePlayIcon(a.s.activePlayEl, 'playing'); 
+                });
+                
+                this.instance.on('pause', () => { 
+                    if (a.s.activePlayEl) 
+                        a.ui.updatePlayIcon(a.s.activePlayEl, 'idle'); 
+                });
+                
+                if (startAt > 0) 
+                    this.instance.once('canplay', () => { this.instance.currentTime = startAt; });
+                
+                this.instance.on('ready', () => this.instance.play());
+                this.instance.on('enterfullscreen', () => screen.orientation?.lock('landscape').catch(() => {}));
+                this.instance.on('exitfullscreen', () => screen.orientation?.unlock());
+                
+                if (type !== 'live') {
+                    const cId = type === 'series' ? item.id : (item.vod_id || item.stream_id || item.id);
+                    this.progInterval = setInterval(() => a.progress.save(this.instance, a.s.curItem, cId, type), 5000);
+                }
+            } catch (e) { 
+                this.isSettingUp = false; 
+                if (a.s.activePlayEl) 
+                    a.ui.updatePlayIcon(a.s.activePlayEl, 'idle'); 
+            }
+        },
+        
+        destroy() {
+            clearInterval(this.progInterval); 
+            this.progInterval = null;
+            if (this.instance) { 
+                try { this.instance.destroy(); } catch(e){} 
+                this.instance = null; 
+            }
+            if (this.hls) { 
+                this.hls.destroy(); 
+                this.hls = null; 
+            }
+            a.audioEngine.destroy();
+            this.currentId = null;
+        }
+    },
+    
+    audioEngine: {
+        context: null, 
+        source: null, 
+        nodes: {}, 
+        isInitialized: false,
+        
+        init(videoElement) {
+            if (this.isInitialized || !videoElement) return true;
+            try {
+                if (!this.context || this.context.state === 'closed') 
+                    this.context = new (window.AudioContext || window.webkitAudioContext)();
+                
+                if (this.context.state === 'suspended') 
+                    this.context.resume();
+                
+                this.source = this.context.createMediaElementSource(videoElement);
+                
+                if (this.source.channelCount > 2) {
+                    this.source.connect(this.context.destination);
+                    a.ui.showAudioStatus('untreated');
+                } else {
+                    this.createAdvancedAudioChain();
+                    a.ui.showAudioStatus('treated');
+                }
+                
+                this.isInitialized = true;
+                return true;
+            } catch (e) { 
+                this.destroy(); 
+                a.ui.showAudioStatus('untreated'); 
+                return false; 
+            }
+        },
+        
+        createAdvancedAudioChain() {
+            const ctx = this.context; 
+            let currentNode = this.source;
+            
+            if (this.source.channelCount === 1) {
+                this.nodes.upmixMerger = ctx.createChannelMerger(2);
+                this.nodes.haasDelay = ctx.createDelay(0.1); 
+                this.nodes.haasDelay.delayTime.value = 0.020;
+                this.nodes.haasFilter = ctx.createBiquadFilter();
+                this.nodes.haasFilter.type = 'highpass';
+                this.nodes.haasFilter.frequency.value = 700;
+                
+                currentNode.connect(this.nodes.upmixMerger, 0, 0);
+                currentNode.connect(this.nodes.haasDelay).connect(this.nodes.haasFilter).connect(this.nodes.upmixMerger, 0, 1);
+                currentNode = this.nodes.upmixMerger;
+            }
+            
+            this.nodes.noiseGate = ctx.createDynamicsCompressor(); 
+            this.nodes.noiseGate.threshold.value = -45;
+            this.nodes.noiseGate.knee.value = 0; 
+            this.nodes.noiseGate.ratio.value = 10;
+            this.nodes.noiseGate.attack.value = 0.002; 
+            this.nodes.noiseGate.release.value = 0.25;
+            
+            this.nodes.deesserMerge = ctx.createGain();
+            this.nodes.lowpass = ctx.createBiquadFilter(); 
+            this.nodes.lowpass.type = 'lowpass'; 
+            this.nodes.lowpass.frequency.value = 6000;
+            
+            this.nodes.highpass = ctx.createBiquadFilter(); 
+            this.nodes.highpass.type = 'highpass'; 
+            this.nodes.highpass.frequency.value = 6000; 
+            
+            this.nodes.deesserCompressor = ctx.createDynamicsCompressor(); 
+            this.nodes.deesserCompressor.threshold.value = -28; 
+            this.nodes.deesserCompressor.ratio.value = 8; 
+            this.nodes.deesserCompressor.attack.value = 0.002; 
+            this.nodes.deesserCompressor.release.value = 0.1;
+            
+            this.nodes.lowShelf = ctx.createBiquadFilter(); 
+            this.nodes.lowShelf.type = 'lowshelf'; 
+            this.nodes.lowShelf.frequency.value = 60; 
+            this.nodes.lowShelf.gain.value = 3.0; 
+            
+            this.nodes.impactPeak = ctx.createBiquadFilter();
+            this.nodes.impactPeak.type = 'peaking';
+            this.nodes.impactPeak.frequency.value = 120;
+            this.nodes.impactPeak.gain.value = 1.0;
+            this.nodes.impactPeak.Q.value = 1.5;
+            
+            this.nodes.mudScoop = ctx.createBiquadFilter(); 
+            this.nodes.mudScoop.type = 'peaking'; 
+            this.nodes.mudScoop.frequency.value = 400; 
+            this.nodes.mudScoop.Q.value = 1.8; 
+            this.nodes.mudScoop.gain.value = -3.0;
+            
+            this.nodes.clarityPeak = ctx.createBiquadFilter();
+            this.nodes.clarityPeak.type = 'peaking';
+            this.nodes.clarityPeak.frequency.value = 1500;
+            this.nodes.clarityPeak.gain.value = 1.5;
+            this.nodes.clarityPeak.Q.value = 1.5;
+            
+            this.nodes.presencePeak = ctx.createBiquadFilter(); 
+            this.nodes.presencePeak.type = 'peaking'; 
+            this.nodes.presencePeak.frequency.value = 4000; 
+            this.nodes.presencePeak.Q.value = 1.8; 
+            this.nodes.presencePeak.gain.value = 1.0;
+            
+            this.nodes.highShelf = ctx.createBiquadFilter(); 
+            this.nodes.highShelf.type = 'highshelf'; 
+            this.nodes.highShelf.frequency.value = 10000; 
+            this.nodes.highShelf.gain.value = 0.5;
+            
+            this.nodes.compressor = ctx.createDynamicsCompressor(); 
+            this.nodes.compressor.threshold.value = -18;
+            this.nodes.compressor.knee.value = 20; 
+            this.nodes.compressor.ratio.value = 2.5;
+            this.nodes.compressor.attack.value = 0.005; 
+            this.nodes.compressor.release.value = 0.20; 
+            
+            this.nodes.limiter = ctx.createDynamicsCompressor(); 
+            this.nodes.limiter.threshold.value = -1.2; 
+            this.nodes.limiter.knee.value = 0; 
+            this.nodes.limiter.ratio.value = 20; 
+            this.nodes.limiter.attack.value = 0.003; 
+            this.nodes.limiter.release.value = 0.1;
+            
+            this.nodes.finalLowpass = ctx.createBiquadFilter();
+            this.nodes.finalLowpass.type = 'lowpass';
+            this.nodes.finalLowpass.frequency.value = 14000;
+            
+            currentNode.connect(this.nodes.noiseGate);
+            this.nodes.noiseGate.connect(this.nodes.lowpass).connect(this.nodes.deesserMerge);
+            this.nodes.noiseGate.connect(this.nodes.highpass).connect(this.nodes.deesserCompressor).connect(this.nodes.deesserMerge);
+            this.nodes.deesserMerge.connect(this.nodes.lowShelf).connect(this.nodes.impactPeak).connect(this.nodes.mudScoop).connect(this.nodes.clarityPeak).connect(this.nodes.presencePeak).connect(this.nodes.highShelf).connect(this.nodes.compressor).connect(this.nodes.limiter).connect(this.nodes.finalLowpass).connect(ctx.destination);
+        },
+        
+        destroy() {
+            if (this.source) { 
+                this.source.disconnect(); 
+                this.source = null; 
+            }
+            Object.values(this.nodes).forEach(node => { 
+                try { node.disconnect(); } catch(e) {} 
+            });
+            if (this.context && this.context.state !== 'closed') 
+                this.context.close().catch(()=>{});
+            this.nodes = {}; 
+            this.isInitialized = false;
+        }
+    },
+    
+    init() { 
+        document.addEventListener('DOMContentLoaded', async () => { 
+            try { 
+                // Abrir em tela cheia quando a página carregar
+                const openFullscreen = () => {
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen().catch(err => {
+                            console.log(`Erro ao tentar entrar em tela cheia: ${err.message}`);
+                        });
+                    } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
+                        document.documentElement.webkitRequestFullscreen();
+                    } else if (document.documentElement.msRequestFullscreen) { /* IE11 */
+                        document.documentElement.msRequestFullscreen();
+                    }
+                };
+                
+                // Tentar abrir em tela cheia
+                openFullscreen();
+                
+                // Tentar novamente após um pequeno atraso caso o primeiro tentativa falhe
+                setTimeout(openFullscreen, 1000);
+                
+                a.s.profiles = JSON.parse(localStorage.getItem('xtream_profiles')) || []; 
+            } catch(e) { 
+                a.s.profiles = []; 
+            } 
+            
+            if (a.s.profiles.length === 0) { 
+                document.getElementById('main-content').innerHTML = ''; 
+                a.ui.showLoginModal(); 
+                return; 
+            } 
+            
+            a.s.showAdult = JSON.parse(localStorage.getItem('xtream_show_adult')) || false; 
+            a.s.showBanners = JSON.parse(localStorage.getItem('xtream_show_banners') ?? 'true'); 
+            a.s.isTvMode = JSON.parse(localStorage.getItem('xtream_is_tv_mode')) || false; 
+            a.s.isLgWebOsMode = JSON.parse(localStorage.getItem('xtream_is_lg_webos_mode')) || false; 
+            a.s.isTvModeCovers = JSON.parse(localStorage.getItem('xtream_is_tv_mode_covers')) || false; 
+            a.s.isGridMode = JSON.parse(localStorage.getItem('xtream_is_grid_mode')) || false; 
+            
+            if (a.s.isTvMode) 
+                document.body.classList.add('tv-mode'); 
+            if (a.s.isTvModeCovers) 
+                document.body.classList.add('tv-cover-square-global'); 
+            if (a.s.isGridMode) 
+                document.body.classList.add('grid-mode-on'); 
+            
+            const savedTheme = localStorage.getItem('theme'); 
+            if (savedTheme === 'light') 
+                document.body.classList.add('light'); 
+            
+            let activeIdx = parseInt(localStorage.getItem('xtream_active_profile_index')); 
+            if (isNaN(activeIdx) || activeIdx < 0 || activeIdx >= a.s.profiles.length) { 
+                activeIdx = 0; 
+            } 
+            
+            a.s.pIdx = activeIdx; 
+            localStorage.setItem('xtream_active_profile_index', a.s.pIdx); 
+            await a.loadProfile(a.s.pIdx); 
+            a.nav.init(); 
+            a.ui.initModalListeners(); 
+            a.ui.initScrollListener(); 
+        }); 
+    },
+    
+    async loadProfile(idx) { 
+        if (idx < 0 || idx >= a.s.profiles.length) { 
+            a.ui.showLoginModal(); 
+            return; 
+        } 
+        
+        const modal = document.getElementById('profile-modal'); 
+        if (modal && modal.open) { 
+            a.ui.closeModal(modal); 
+        } 
+        
+        a.s.pIdx = idx; 
+        localStorage.setItem('xtream_active_profile_index', idx); 
+        const profile = a.s.profiles[idx]; 
+        a.s.xtream = { baseUrl: '', user: '', pass: '' }; 
+        a.s.cache = { live: [], vod: {}, series: {}, live_cat: [], vod_cat: [], series_cat: [] }; 
+        a.pd.load(); 
+        
+        const data = a.u.parseXtreamUrl(profile.url); 
+        if (!data) { 
+            alert('URL do perfil inválida.'); 
+            a.ui.showProfileModal(); 
+            return; 
+        } 
+        
+        a.s.xtream = { 
+            baseUrl: `${data.protocol}://${data.panel}`, 
+            user: data.username, 
+            pass: data.password 
+        }; 
+        
+        await a.fetchInitialData(); 
+    },
+    
+    async saveProfile(name, url) { 
+        a.ui.updateBtnState('Carregando...', true, 'saveProfileBtn');
+        const isFirstProfile = a.s.profiles.length === 0;
+        const newP = { name, url }; 
+        const existIdx = a.s.profiles.findIndex(p => p.name.toLowerCase() === name.toLowerCase()); 
+        
+        if(existIdx > -1) { 
+            a.s.profiles[existIdx] = newP; 
+            a.s.pIdx = existIdx; 
+        } else { 
+            a.s.profiles.push(newP); 
+            a.s.pIdx = a.s.profiles.length - 1; 
+        } 
+        
+        localStorage.setItem('xtream_profiles', JSON.stringify(a.s.profiles)); 
+        localStorage.setItem('xtream_active_profile_index', a.s.pIdx); 
+        a.ui.closeModal(document.getElementById('login-modal')); 
+        
+        if (isFirstProfile) { 
+            location.reload(); 
+        } else { 
+            await a.loadProfile(a.s.pIdx); 
+        }
+    },
+    
+    deleteProfile(idx) { 
+        if (!confirm(`Tem certeza que deseja excluir o perfil "${a.s.profiles[idx].name}"?`)) 
+            return; 
+            
+        const key = a.u.getProfileKey(a.s.profiles[idx].url); 
+        localStorage.removeItem(`xtream_profile_data_${key}`); 
+        a.s.profiles.splice(idx, 1); 
+        localStorage.setItem('xtream_profiles', JSON.stringify(a.s.profiles)); 
+        location.reload(); 
+    },
+    
+    async fetchInitialData() {
+        const main = document.getElementById('main-content');
+        main.innerHTML = `<div class="spinner"><i class="fas fa-spinner fa-spin fa-3x" style="color: var(--netflix-red);"></i><p style="margin-top:1rem;">Carregando dados...</p></div>`;
+        
+        const { baseUrl, user, pass } = a.s.xtream;
+        if (!baseUrl || !user || !pass) { 
+            main.innerHTML = `<div style="text-align:center; padding: 2rem;"><h2 style="color: var(--color-danger);">Falha ao Carregar Perfil</h2><p style="margin: 1rem 0;">Não foi possível obter os dados.</p><button class="btn btn-primary" onclick="a.ui.showProfileModal()">Gerenciar Perfis</button></div>`; 
+            return; 
+        }
+        
+        const baseApi = `${baseUrl}/player_api.php?username=${user}&password=${pass}`;
+        try {
+            const [live, live_cat, vod_cat, series_cat] = await Promise.all([
+                a.u.fetchAPI(`${baseApi}&action=get_live_streams`),
+                a.u.fetchAPI(`${baseApi}&action=get_live_categories`),
+                a.u.fetchAPI(`${baseApi}&action=get_vod_categories`),
+                a.u.fetchAPI(`${baseApi}&action=get_series_categories`),
+            ]);
+            
+            a.s.cache = { live: [], vod: {}, series: {}, live_cat: [], vod_cat: [], series_cat: [] };
+            const liveCats = Array.isArray(live_cat) ? live_cat : []; 
+            a.s.cache.live_cat = a.u.filterAdult(liveCats);
+            a.s.cache.live = a.u.filterAdult(Array.isArray(live) ? live : [], a.s.cache.live_cat);
+            
+            const vodCats = Array.isArray(vod_cat) ? vod_cat : []; 
+            a.s.cache.vod_cat = a.u.filterAdult(vodCats);
+            
+            const seriesCats = Array.isArray(series_cat) ? series_cat : []; 
+            a.s.cache.series_cat = a.u.filterAdult(seriesCats);
+            
+            a.renderContent(a.s.activeCat || 'live');
+        } catch (error) { 
+            main.innerHTML = `<div style="text-align:center; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;"><h2 style="color: var(--color-danger);">Erro ao Carregar Lista</h2><p style="margin: 0;">A conexão falhou ou a URL está inválida.</p><div style="display:flex; gap: 1rem;"><button class="btn btn-primary" onclick="a.loadProfile(a.s.pIdx)">Tentar Novamente</button><button class="btn btn-secondary" onclick="a.ui.showProfileModal()">Mudar Perfil</button></div></div>`; 
+        }
+    },
+    
+    async renderContent(cat) {
+        a.s.isSwitchingTabs = true; 
+        a.s.scrollPos[a.s.activeCat] = window.scrollY; 
+        a.s.activeCat = cat; 
+        a.s.reqQueue = []; 
+        a.s.activeRequests = 0; 
+        a.p.isIdleScheduled = false;
+        
+        const main = document.getElementById('main-content'); 
+        main.innerHTML = '';
+        
+        if (a.p.placeholderObserver) 
+            a.p.placeholderObserver.disconnect();
+        if (a.p.sectionObserver) 
+            a.p.sectionObserver.disconnect();
+        if (a.p.infiniteScrollObserver) 
+            a.p.infiniteScrollObserver.disconnect();
+        
+        a.ui.setHomePageView(true, cat);
+        
+        if (cat === 'live') { 
+            a.ui.renderLiveChannels(); 
+        } else { 
+            a.ui.renderCategorizedContent(cat); 
+        }
+        
+        setTimeout(() => { 
+            window.scrollTo({ top: a.s.scrollPos[cat] || 0, behavior: 'instant' }); 
+            setTimeout(() => { a.s.isSwitchingTabs = false; }, 50); 
+        }, 0);
+    },
+    
+    ui: {
+        lockScroll() { document.body.classList.add('scroll-locked'); },
+        unlockScroll() { document.body.classList.remove('scroll-locked'); },
+        
+        showModal(id) { 
+            const modal = document.getElementById(id); 
+            if (modal) { 
+                this.lockScroll(); 
+                modal.innerHTML = '<div class="modal-content"><div class="spinner" style="padding: 3rem 0;"><i class="fas fa-spinner fa-spin fa-2x"></i></div></div>'; 
+                modal.showModal(); 
+                
+                if (a.s.isTvMode) { 
+                    setTimeout(() => { 
+                        const focusable = a.nav.getFocusableElements(modal); 
+                        if (focusable.length > 0) 
+                            focusable[0].focus(); 
+                    }, 150); 
+                } 
+            } 
+            return modal; 
+        },
+        
+        closeModal(dialog) {
+            if (!dialog || !dialog.open) return;
+            dialog.classList.add('is-closing');
+        },
+        
+        initModalListeners() {
+            document.querySelectorAll('dialog').forEach(dialog => {
+                dialog.addEventListener('animationend', (e) => {
+                    if (e.animationName === 'fadeOut') {
+                        dialog.classList.remove('is-closing');
+                        dialog.close();
+                    }
+                });
+                
+                dialog.addEventListener('close', () => {
+                    if (dialog.id === 'details-modal') {
+                        if (!a.p.instance?.pip) 
+                            a.p.destroy();
+                        if (a.s.activePlayEl) {
+                            a.ui.updatePlayIcon(a.s.activePlayEl, 'idle');
+                            a.s.activePlayEl = null;
+                        }
+                        a.renderContent(a.s.activeCat);
+                    }
+                    a.ui.unlockScroll();
+                });
+            });
+        },
+        
+        initScrollListener() { 
+            let scrollTimeout; 
+            window.addEventListener('scroll', () => { 
+                if (a.s.isSwitchingTabs) return; 
+                clearTimeout(scrollTimeout); 
+                scrollTimeout = setTimeout(() => { 
+                    if (!a.s.isSwitchingTabs) { 
+                        a.s.scrollPos[a.s.activeCat] = window.scrollY; 
+                    } 
+                }, 150); 
+            }, { passive: true }); 
+            
+            // Netflix style header scroll effect
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('app-top-bar');
+                if (window.scrollY > 10) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+        },
+        
+        setHomePageView(isHome, cat = 'live') { 
+            document.querySelectorAll('#content-filters .nav-tab').forEach(b => b.classList.remove('active')); 
+            document.querySelector(`#content-filters .nav-tab[data-category="${cat}"]`)?.classList.add('active'); 
+        },
+        
+        toggleMainMenu(event) { 
+            event.stopPropagation(); 
+            const menu = document.getElementById('main-menu-container'); 
+            const isOpen = menu.classList.toggle('open'); 
+            if (isOpen) { 
+                document.addEventListener('click', this.closeMenuOnClickOutside.bind(this)); 
+            } else { 
+                document.removeEventListener('click', this.closeMenuOnClickOutside.bind(this)); 
+            }
+        },
+        
+        closeMenuOnClickOutside(event) { 
+            const menu = document.getElementById('main-menu-container'); 
+            if (!menu.contains(event.target) && menu.classList.contains('open')) { 
+                menu.classList.remove('open'); 
+                document.removeEventListener('click', this.closeMenuOnClickOutside); 
+            }
+        },
+        
+        toggleTheme() { 
+            document.body.classList.toggle('light'); 
+            const isLight = document.body.classList.contains('light'); 
+            localStorage.setItem('theme', isLight ? 'light' : 'dark'); 
+        },
+        
+        showPasswordModal() { 
+            const modal = this.showModal('password-modal'); 
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <header class="modal-header">
+                        <h2>Controle dos Pais</h2>
+                        <button class="close-modal-btn" onclick="a.ui.closeModal(this.closest('dialog'))">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </header>
+                    <div class="modal-body">
+                        <label for="passInput">Digite a senha para ${a.s.showAdult ? 'desativar' : 'ativar'} o modo adulto:</label>
+                        <input type="password" id="passInput" class="form-input" tabindex="0">
+                    </div>
+                    <footer class="modal-footer">
+                        <button id="confirmPassBtn" class="submit-btn" tabindex="0">Confirmar</button>
+                    </footer>
+                </div>
+            `; 
+            
+            document.getElementById('confirmPassBtn').onclick = () => { 
+                const pass = document.getElementById('passInput').value; 
+                if (pass === atob(a.c.ADULT_PASSWORD_ENC)) { 
+                    this.closeModal(modal); 
+                    this.toggleAdultMode(); 
+                } else { 
+                    alert('Senha incorreta!'); 
+                } 
+            }; 
+            
+            if(!a.s.isTvMode) 
+                document.getElementById('passInput').focus();
+        },
+        
+        toggleAdultMode() { 
+            a.s.showAdult = !a.s.showAdult; 
+            localStorage.setItem('xtream_show_adult', JSON.stringify(a.s.showAdult)); 
+            alert(`Modo Adulto ${a.s.showAdult ? 'ATIVADO' : 'DESATIVADO'}. O conteúdo será recarregado.`); 
+            a.loadProfile(a.s.pIdx);
+        },
+        
+        toggleBanners() { 
+            a.s.showBanners = !a.s.showBanners; 
+            localStorage.setItem('xtream_show_banners', JSON.stringify(a.s.showBanners)); 
+            a.renderContent(a.s.activeCat); 
+        },
+        
+        toggleTvMode() { 
+            a.s.isTvMode = !a.s.isTvMode; 
+            if (!a.s.isTvMode) { 
+                a.s.isLgWebOsMode = false; 
+                localStorage.setItem('xtream_is_lg_webos_mode', JSON.stringify(false)); 
+            } 
+            localStorage.setItem('xtream_is_tv_mode', JSON.stringify(a.s.isTvMode)); 
+            document.body.classList.toggle('tv-mode', a.s.isTvMode); 
+            
+            if(a.s.isTvMode) { 
+                alert('Modo TV Ativado. A navegação por controle remoto está habilitada.'); 
+            } else { 
+                alert('Modo TV Desativado.'); 
+            } 
+            a.renderContent(a.s.activeCat); 
+        },
+        
+        toggleLgWebOsMode() { 
+            if (!a.s.isTvMode) return; 
+            a.s.isLgWebOsMode = !a.s.isLgWebOsMode; 
+            localStorage.setItem('xtream_is_lg_webos_mode', JSON.stringify(a.s.isLgWebOsMode)); 
+            alert(`Modo de compatibilidade LG WebOS ${a.s.isLgWebOsMode ? 'ATIVADO' : 'DESATIVADO'}. As capas agora serão carregadas diretamente.`); 
+            a.renderContent(a.s.activeCat); 
+        },
+        
+        toggleTvModeCovers() { 
+            a.s.isTvModeCovers = !a.s.isTvModeCovers; 
+            localStorage.setItem('xtream_is_tv_mode_covers', JSON.stringify(a.s.isTvModeCovers)); 
+            document.querySelectorAll('.content-card').forEach(c => c.classList.toggle('tv-cover-square', a.s.isTvModeCovers)); 
+            a.renderContent(a.s.activeCat); 
+        },
+        
+        toggleGridMode() { 
+            a.s.isGridMode = !a.s.isGridMode; 
+            localStorage.setItem('xtream_is_grid_mode', JSON.stringify(a.s.isGridMode)); 
+            document.body.classList.toggle('grid-mode-on', a.s.isGridMode); 
+            a.renderContent(a.s.activeCat); 
+        },
+        
+        showProfileModal() { 
+            const modal = this.showModal('profile-modal'); 
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <header class="modal-header">
+                        <h2>Gerenciar Perfis</h2>
+                        <button class="close-modal-btn" onclick="a.ui.closeModal(this.closest('dialog'))">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </header>
+                    <div class="modal-body">
+                        <div id="profile-list-container" class="profile-list"></div>
+                    </div>
+                    <footer class="modal-footer">
+                        <button class="submit-btn" onclick="a.ui.showLoginModal()" tabindex="0">+ Adicionar Nova Playlist</button>
+                    </footer>
+                </div>
+            `; 
+            this.renderProfiles(); 
+        },
+        
+        showLoginModal() { 
+            const modal = this.showModal('login-modal'); 
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <header class="modal-header">
+                        <h2>Adicionar Lista</h2>
+                        <button class="close-modal-btn" onclick="a.ui.closeModal(this.closest('dialog'))">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </header>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="profileNameInput">Nome da Lista</label>
+                            <input type="text" id="profileNameInput" class="form-input" placeholder="Ex: Minha TV" tabindex="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileUrlInput">URL</label>
+                            <input type="text" id="profileUrlInput" class="form-input" placeholder="Cole a URL M3U aqui" tabindex="0">
+                        </div>
+                    </div>
+                    <footer class="modal-footer">
+                        <button id="saveProfileBtn" class="submit-btn" onclick="a.saveProfile(document.getElementById('profileNameInput').value, document.getElementById('profileUrlInput').value)" tabindex="0">Salvar</button>
+                    </footer>
+                </div>
+            `; 
+        },
+        
+        showSearchModal(type) { 
+            const modal = this.showModal('search-modal'); 
+            const placeholder = type === 'live' ? 'canal' : (type === 'vod' ? 'filme' : 'série'); 
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <header class="modal-header">
+                        <h2>Buscar ${placeholder}</h2>
+                        <button class="close-modal-btn" onclick="a.ui.closeModal(this.closest('dialog'))">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </header>
+                    <div class="modal-body">
+                        <input type="text" id="searchInput" class="form-input" placeholder="Digite 3 ou mais letras...">
+                        <div id="search-results-list" style="margin-top: 1rem;"></div>
+                    </div>
+                </div>
+            `; 
+            
+            const searchInput = document.getElementById('searchInput'); 
+            searchInput.oninput = () => a.search.perform(searchInput.value, type); 
+            
+            if(!a.s.isTvMode) 
+                searchInput.focus();
+        },
+        
+        updateBtnState(text, disabled, btnId) { 
+            const btn = document.getElementById(btnId); 
+            if (btn) { 
+                btn.textContent = text; 
+                btn.disabled = disabled; 
+            }
+        },
+        
+        renderProfiles() { 
+            const cont = document.getElementById('profile-list-container'); 
+            if (!cont) return; 
+            cont.innerHTML = ''; 
+            
+            if (a.s.profiles.length === 0) { 
+                cont.innerHTML = `<p>Nenhum perfil salvo.</p>`; 
+                return; 
+            } 
+            
+            a.s.profiles.forEach((p, idx) => { 
+                const isActive = idx === a.s.pIdx; 
+                const pDiv = document.createElement('div'); 
+                pDiv.className = `profile-card ${isActive ? 'active' : ''}`; 
+                pDiv.innerHTML = `
+                    <div class="profile-name">${p.name}</div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="delete-profile-btn" title="Excluir" onclick="event.stopPropagation(); a.deleteProfile(${idx})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `; 
+                
+                pDiv.onclick = () => a.loadProfile(idx);
+                cont.appendChild(pDiv); 
+            }); 
+        },
+        
+        renderLiveChannels() { 
+            const data = a.u.procLive(a.s.cache.live, a.s.cache.live_cat); 
+            this.initVirtualRenderer(data.categories, 'live', data.itemsByCat); 
+        },
+        
+        renderCategorizedContent(type) {
+            const main = document.getElementById('main-content'); 
+            main.innerHTML = ''; 
+            const cats = a.s.cache[`${type}_cat`];
+            
+            const fragment = document.createDocumentFragment();
+            let continueItems = a.progress.getContinueWatching(type);
+            
+            if (continueItems.length > 0) {
+                continueItems.sort((a, b) => b.lastWatched - a.lastWatched);
+                const contSect = this.createCatSection('Continuar Assistindo', continueItems, type, "continue_watching");
+                if (contSect) 
+                    fragment.appendChild(contSect);
+            }
+            
+            main.appendChild(fragment);
+            
+            if (!cats || cats.length === 0) {
+                if (continueItems.length === 0) 
+                    main.innerHTML = `<h2 style="text-align:center;">Nenhuma categoria encontrada.</h2>`;
+                return;
+            }
+            
+            this.initVirtualRenderer(a.u.sortCats(cats), type);
+        },
+        
+        initVirtualRenderer(catsData, type, itemsByCat = null) {
+            const main = document.getElementById('main-content');
+            if (a.p.placeholderObserver) 
+                a.p.placeholderObserver.disconnect(); 
+            if (a.p.sectionObserver) 
+                a.p.sectionObserver.disconnect();
+                
+            const observerOptions = { rootMargin: "800px 0px" };
+            
+            const placeholderCallback = (entries) => { 
+                entries.forEach(entry => { 
+                    if (entry.isIntersecting) { 
+                        const p = entry.target; 
+                        a.p.placeholderObserver.unobserve(p); 
+                        if (!p.dataset.loading) { 
+                            p.dataset.loading = "true"; 
+                            const { catId, catName } = p.dataset; 
+                            a.s.reqQueue.push({ 
+                                type, 
+                                catId, 
+                                catName, 
+                                placeholder: p, 
+                                action: 'render', 
+                                items: itemsByCat ? itemsByCat[catId] : null 
+                            }); 
+                            a.u.scheduleQueueProcessing(); 
+                        } 
+                    } 
+                }); 
+            };
+            
+            const sectionCallback = (entries) => { 
+                entries.forEach(entry => { 
+                    if (!entry.isIntersecting) { 
+                        const sect = entry.target; 
+                        a.p.sectionObserver.unobserve(sect); 
+                        a.s.reqQueue.push({ action: 'unrender', section: sect }); 
+                        a.u.scheduleQueueProcessing(); 
+                    } 
+                }); 
+            };
+            
+            a.p.placeholderObserver = new IntersectionObserver(placeholderCallback, observerOptions); 
+            a.p.sectionObserver = new IntersectionObserver(sectionCallback, { rootMargin: "800px 0px" });
+            
+            const fragment = document.createDocumentFragment();
+            catsData.forEach(cat => { 
+                const placeholder = document.createElement('div'); 
+                placeholder.className = 'category-placeholder'; 
+                placeholder.dataset.catId = cat.category_id; 
+                placeholder.dataset.catName = cat.category_name; 
+                fragment.appendChild(placeholder); 
+            });
+            
+            main.appendChild(fragment); 
+            main.querySelectorAll('.category-placeholder').forEach(p => a.p.placeholderObserver.observe(p));
+        },
+        
+        createCatSection(title, items, type, catId) {
+            if (!items || items.length === 0) 
+                return null;
+                
+            const sect = document.createElement('section'); 
+            sect.className = 'category-section';
+            
+            const header = document.createElement('header'); 
+            header.className = 'category-header'; 
+            header.innerHTML = `<h2>${a.u.removeEmojis(title)}</h2>`;
+            
+            const grid = document.createElement('div'); 
+            grid.className = 'category-grid';
+            
+            if (a.s.isTvMode || a.s.isGridMode || (title === 'Continuar Assistindo' && a.u.isMobile())) {
+                if (title !== 'Continuar Assistindo' || !a.u.isMobile()) 
+                    grid.classList.add('grid-view');
+            }
+            
+            grid.dataset.type = type; 
+            grid.dataset.catId = catId || items[0]?.category_id;
+            
+            const BATCH_SIZE = (a.s.isGridMode || title === 'Continuar Assistindo') ? items.length : 20;
+            const initialItems = items.slice(0, BATCH_SIZE); 
+            const fragment = document.createDocumentFragment();
+            
+            initialItems.forEach(item => { 
+                const card = this.createCard(item, item.type || type); 
+                fragment.appendChild(card); 
+            });
+            
+            grid.appendChild(fragment); 
+            grid.dataset.renderedCount = initialItems.length;
+            
+            if (!(a.s.isGridMode || title === 'Continuar Assistindo') && items.length > BATCH_SIZE) { 
+                const sentinel = document.createElement('div'); 
+                grid.appendChild(sentinel); 
+                this.observeForInfiniteScroll(sentinel); 
+            }
+            
+            if (title !== 'Continuar Assistindo' && items.length > 7) { 
+                const moreBtn = document.createElement('button'); 
+                moreBtn.className = 'btn btn-secondary'; 
+                moreBtn.textContent = 'Ver Mais'; 
+                moreBtn.onclick = () => { 
+                    grid.classList.toggle('grid-view'); 
+                    moreBtn.textContent = grid.classList.contains('grid-view') ? 'Ver Menos' : 'Ver Mais'; 
+                }; 
+                header.appendChild(moreBtn); 
+            }
+            
+            sect.appendChild(header); 
+            sect.appendChild(grid);
+            return sect;
+        },
+        
+        createCard(item, type) {
+            const itemId = item.id || item.stream_id || item.series_id || item.vod_id;
+            const itemName = item.name || 'Sem nome';
+            const iconUrl = item.cover || item.stream_icon;
+            
+            const card = document.createElement('article'); 
+            card.className = 'content-card';
+            if (a.s.isTvModeCovers) 
+                card.classList.add('tv-cover-square');
+                
+            card.setAttribute('tabindex', 0);
+            
+            const posterDiv = document.createElement('div'); 
+            posterDiv.className = 'content-card-poster';
+            
+            const placeholderIcon = document.createElement('i');
+            placeholderIcon.className = 'fas fa-film placeholder-icon';
+            if (type === 'live') 
+                placeholderIcon.className = 'fas fa-tv placeholder-icon';
+            if (type === 'series') 
+                placeholderIcon.className = 'fas fa-clapperboard placeholder-icon';
+                
+            posterDiv.appendChild(placeholderIcon);
+            
+            const gradientOverlay = document.createElement('div');
+            gradientOverlay.className = 'gradient-overlay';
+            posterDiv.appendChild(gradientOverlay);
+            
+            if (a.s.showBanners && iconUrl) { 
+                posterDiv.dataset.src = iconUrl;
+                const img = new Image();
+                img.onload = () => {
+                    img.style.opacity = '1';
+                    placeholderIcon.style.display = 'none';
+                };
+                img.onerror = () => {
+                    placeholderIcon.style.display = 'block';
+                };
+                img.src = a.u.getImgUrl(iconUrl, a.s.isTvModeCovers);
+                img.style.opacity = '0';
+                img.style.transition = 'opacity 0.3s';
+                posterDiv.insertBefore(img, placeholderIcon);
+            }
+            
+            const titleElement = document.createElement('h3');
+            titleElement.className = 'content-title';
+            titleElement.textContent = itemName;
+            
+            const contentInfo = document.createElement('div');
+            contentInfo.className = 'content-info';
+            contentInfo.appendChild(titleElement);
+            
+            const progress = a.progress.get(itemId);
+            if (progress && progress.duration > 0) {
+                const barCont = document.createElement('div');
+                barCont.className = 'progress-bar-container';
+                const bar = document.createElement('div');
+                bar.className = 'progress-bar';
+                bar.style.width = `${(progress.currentTime / progress.duration) * 100}%`;
+                barCont.appendChild(bar);
+                posterDiv.appendChild(barCont);
+            }
+            
+            card.appendChild(posterDiv);
+            card.appendChild(contentInfo);
+            
+            card.onclick = () => { 
+                if (a.s.inputMode !== 'keyboard') 
+                    a.ui.showItemModal(item, item.type || type); 
+            };
+            
+            card.onkeydown = (e) => { 
+                if (e.key === 'Enter' || e.key === ' ') { 
+                    e.preventDefault(); 
+                    a.ui.showItemModal(item, item.type || type); 
+                } 
+            };
+            
+            return card;
+        },
+        
+        async showItemModal(item, type) {
+            a.p.destroy(); 
+            const modal = this.showModal('details-modal');
+            
+            setTimeout(async () => {
+                try {
+                    const modalCont = modal.querySelector('.modal-content'); 
+                    const contentId = type === 'series' ? item.series_id : (item.vod_id || item.stream_id || item.id);
+                    
+                    modalCont.innerHTML = `
+                        <div class="modal-body">
+                            <div class="details-player-wrapper">
+                                <div class="placeholder-icon" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                                    <i class="fa-solid fa-film fa-4x"></i>
+                                </div>
+                                <img id="details-poster" src="" style="display: none;">
+                                <div id="player-container" class="hidden"></div>
+                            </div>
+                            <div id="details-info">
+                                <div class="spinner">
+                                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    const detailsInfo = document.getElementById('details-info'); 
+                    const baseApi = `${a.s.xtream.baseUrl}/player_api.php?username=${a.s.xtream.user}&password=${a.s.xtream.pass}`;
+                    
+                    let info = null; 
+                    let fullData = {...item};
+                    
+                    if ((type === 'vod' || type === 'series') && contentId) { 
+                        const action = (type === 'vod') ? `get_vod_info&vod_id=${contentId}` : `get_series_info&series_id=${contentId}`; 
+                        try { 
+                            const res = await a.u.fetchAPI(`${baseApi}&action=${action}`); 
+                            if (res) { 
+                                info = res; 
+                                fullData = { 
+                                    ...item, 
+                                    ...res.info, 
+                                    stream_id: item.stream_id, 
+                                    series_id: item.series_id, 
+                                    vod_id: item.vod_id 
+                                }; 
+                            } 
+                        } catch (e) { 
+                            info = null; 
+                        }
+                    }
+                    
+                    a.s.curItem = fullData; 
+                    const title = fullData.name || 'Sem Título'; 
+                    const plot = info?.info?.plot || 'Sinopse não disponível.'; 
+                    const banner = info?.info?.backdrop_path?.[0] || fullData.cover || fullData.stream_icon;
+                    const poster = document.getElementById('details-poster');
+                    
+                    if(banner) { 
+                        poster.src = a.u.getImgUrl(banner); 
+                        poster.style.display = 'block'; 
+                        poster.previousElementSibling.style.display = 'none'; 
+                        poster.onerror = () => { 
+                            poster.style.display = 'none'; 
+                            poster.previousElementSibling.style.display = 'flex'; 
+                        }; 
+                    }
+                    
+                    if (type === 'live') { 
+                        detailsInfo.innerHTML = `
+                            <div class="details-title-container">
+                                <h2 id="detail-title">${title}</h2>
+                                <div id="details-actions">
+                                    <button id="close-details-btn" class="close-modal-btn" onclick="a.ui.closeModal(this.closest('dialog'))">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="live-quality-options-container"></div>
+                        `; 
+                        this.renderLiveQualities(fullData.grouped_streams || [fullData]); 
+                    } else {
+                        const progId = type === 'series' ? (info?.episodes ? Object.values(info.episodes).flat()[0]?.id : contentId) : contentId;
+                        const progress = a.progress.get(progId);
+                        
+                        detailsInfo.innerHTML = `
+                            <div class="details-title-container">
+                                <h2 id="detail-title">${title}</h2>
+                                <div id="details-actions">
+                                    ${progress ? `
+                                        <button id="remove-progress-btn" class="action-btn" title="Remover de Continuar Assistindo" tabindex="0">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    ` : ''}
+                                    <button id="close-details-btn" class="close-modal-btn" onclick="a.ui.closeModal(this.closest('dialog'))">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="details-meta">
+                                ${fullData.year ? `<span><i class="fa-solid fa-calendar"></i> ${fullData.year}</span>` : ''}
+                                ${fullData.rating ? `<span><i class="fa-solid fa-star"></i> ${fullData.rating}/10</span>` : ''}
+                                ${fullData.runtime ? `<span><i class="fa-solid fa-clock"></i> ${fullData.runtime}</span>` : ''}
+                            </div>
+                            <div id="synopsis-container">
+                                <h3 style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;" tabindex="0">
+                                    <span>Sinopse</span>
+                                    <i class="fa-solid fa-chevron-down" style="transition: transform 0.3s;"></i>
+                                </h3>
+                                <p class="synopsis hidden">${plot}</p>
+                            </div>
+                            <div class="details-actions">
+                                <button id="play-action-btn" class="action-btn primary">
+                                    <i class="fa-solid fa-play"></i> ${progress ? 'Continuar' : 'Assistir'}
+                                </button>
+                            </div>
+                            <div id="series-content-container" class="hidden"></div>
+                        `;
+                        
+                        const synopsisHeader = detailsInfo.querySelector('#synopsis-container h3');
+                        if(synopsisHeader) {
+                            const toggleSynopsis = () => { 
+                                const p = synopsisHeader.nextElementSibling, 
+                                      i = synopsisHeader.querySelector('i'); 
+                                if(p && i) { 
+                                    const isHidden = p.classList.toggle('hidden'); 
+                                    i.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-180deg)'; 
+                                } 
+                            };
+                            synopsisHeader.onclick = toggleSynopsis;
+                            synopsisHeader.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') toggleSynopsis(); };
+                        }
+                        
+                        if (progress) 
+                            document.getElementById('remove-progress-btn').onclick = () => a.progress.remove(progId);
+                            
+                        const playBtn = document.getElementById('play-action-btn');
+                        if (type === 'vod') {
+                            playBtn.onclick = function() {
+                                if (a.p.isSettingUp) return;
+                                if (a.p.instance && a.p.currentId === contentId) { 
+                                    a.p.instance.togglePlay(); 
+                                } else { 
+                                    if (a.s.activePlayEl) 
+                                        a.ui.updatePlayIcon(a.s.activePlayEl, 'idle'); 
+                                    a.s.activePlayEl = this; 
+                                    a.ui.updatePlayIcon(this, 'loading'); 
+                                    a.p.setup(fullData, type, progress?.currentTime || 0); 
+                                }
+                            };
+                        }
+                        
+                        if (type === 'series' && info?.episodes) { 
+                            this.renderSeries(info.episodes, fullData); 
+                        } else if (type === 'series') { 
+                            playBtn.classList.add('hidden'); 
+                        }
+                    }
+                    
+                    if (a.s.isTvMode) { 
+                        setTimeout(() => { 
+                            const firstInfoElement = detailsInfo.querySelector('button, [tabindex="0"]'); 
+                            if (firstInfoElement) 
+                                firstInfoElement.focus(); 
+                        }, 250); 
+                    }
+                } catch (error) { 
+                    modal.querySelector('.modal-content').innerHTML += '<p style="color:var(--color-danger); text-align:center; padding:1rem;">Erro ao carregar detalhes.</p>'; 
+                }
+            }, 0);
+        },
+        
+        showAudioStatus(status) {
+            const indicator = document.getElementById('audio-status-indicator'); 
+            if (!indicator) return;
+            
+            const icons = { 
+                treated: `<i class="fa-solid fa-wave-square" style="color: #A2D0EC;"></i><span>Áudio Revitalizado</span>`, 
+                untreated: `<i class="fa-solid fa-ear-deaf" style="color: #ef4444;"></i><span>Áudio Original</span>` 
+            };
+            
+            indicator.innerHTML = icons[status] || ''; 
+            indicator.classList.add('visible');
+            setTimeout(() => { indicator.classList.remove('visible'); }, 5000);
+        },
+        
+        renderLiveQualities(chanGroup) { 
+            const cont = document.getElementById('live-quality-options-container'); 
+            if(!cont) return; 
+            
+            cont.innerHTML = `<h3 style="font-weight: 600; margin-bottom: 1rem;">Qualidades Disponíveis</h3>`; 
+            
+            const qRegex = /\s(SD|HD\+|FHD|UHD|4K|HEVC|H26[45]|HDR\+|HDR10|HDR|\+HD|HD|720P|1080P|\[H?26[45]\]|\bPOTÊNCIA\s?[\d¹²³⁴⁵⁶⁷⁸⁹])\b/i; 
+            
+            chanGroup.sort((a,b) => a.name.localeCompare(b.name)).forEach(stream => { 
+                const match = stream.name.match(qRegex); 
+                const quality = match ? match[0].trim() : 'Padrão'; 
+                
+                const qualityCard = document.createElement('div');
+                qualityCard.className = 'action-btn';
+                qualityCard.style.marginBottom = '10px';
+                qualityCard.innerHTML = `
+                    <span>${quality}</span>
+                    <i class="fa-solid fa-play"></i>
+                `;
+                
+                qualityCard.setAttribute('tabindex', '0');
+                qualityCard.onclick = function() { 
+                    if (a.p.isSettingUp) return;
+                    if (a.s.activePlayEl) 
+                        a.ui.updatePlayIcon(a.s.activePlayEl, 'idle'); 
+                    a.s.activePlayEl = this; 
+                    a.ui.updatePlayIcon(this, 'loading'); 
+                    a.p.setup(stream, 'live'); 
+                };
+                
+                qualityCard.onkeydown = (e) => { 
+                    if (e.key === 'Enter' || e.key === ' ') 
+                        qualityCard.click(); 
+                };
+                
+                cont.appendChild(qualityCard);
+            }); 
+        },
+        
+        renderSeries(epsData, sData) {
+            document.getElementById('play-action-btn').classList.add('hidden');
+            const cont = document.getElementById('series-content-container');
+            cont.innerHTML = '';
+            
+            const seasons = Object.keys(epsData).sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+            if (seasons.length === 0) {
+                cont.innerHTML = '<p>Nenhum episódio encontrado.</p>';
+                return;
+            }
+            
+            const fragment = document.createDocumentFragment();
+            
+            seasons.forEach((sNum, sIdx) => {
+                const sWrapper = document.createElement('div');
+                
+                const sHeader = document.createElement('div');
+                sHeader.className = 'season-header';
+                sHeader.innerHTML = `
+                    <h3>Temporada ${sNum}</h3>
+                    <i class="fa-solid fa-chevron-down"></i>
+                `;
+                
+                const epsList = document.createElement('div');
+                epsList.className = 'episodes-list';
+                
+                if (sIdx !== 0) {
+                    epsList.classList.add('hidden');
+                } else {
+                    sHeader.querySelector('i').style.transform = 'rotate(-180deg)';
+                }
+                
+                epsData[sNum].sort((a, b) => a.episode_num - b.episode_num).forEach(ep => {
+                    const epItem = {
+                        ...ep, 
+                        type: 'series', 
+                        name: `${sData.name} - S${sNum}E${ep.episode_num}`, 
+                        cover: sData.cover || sData.backdrop_path?.[0], 
+                        series_id: sData.series_id, 
+                        vod_id: null, 
+                        stream_id: ep.id
+                    };
+                    
+                    const progress = a.progress.get(ep.id);
+                    
+                    const epCard = document.createElement('div');
+                    epCard.className = 'episode-card';
+                    epCard.setAttribute('tabindex', '0');
+                    
+                    epCard.innerHTML = `
+                        <div class="episode-poster">
+                            <i class="fas fa-film placeholder-icon"></i>
+                        </div>
+                        <div class="episode-info">
+                            <div class="episode-title">Episódio ${String(ep.episode_num).padStart(2, '0')} - ${ep.title || 'Sem título'}</div>
+                            <div class="episode-description">${ep.plot || 'Descrição não disponível.'}</div>
+                        </div>
+                        <i class="fa-solid fa-play" style="color:var(--netflix-red); align-self: center;"></i>
+                    `;
+                    
+                    const posterDiv = epCard.querySelector('.episode-poster');
+                    if (ep.stream_icon) {
+                        posterDiv.dataset.src = ep.stream_icon;
+                        const img = new Image();
+                        img.onload = () => {
+                            img.style.opacity = '1';
+                            posterDiv.querySelector('.placeholder-icon').style.display = 'none';
+                        };
+                        img.onerror = () => {
+                            posterDiv.querySelector('.placeholder-icon').style.display = 'block';
+                        };
+                        img.src = a.u.getImgUrl(ep.stream_icon);
+                        img.style.opacity = '0';
+                        img.style.transition = 'opacity 0.3s';
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'cover';
+                        posterDiv.insertBefore(img, posterDiv.firstChild);
+                    }
+                    
+                    if (progress && progress.duration > 0) {
+                        const barCont = document.createElement('div');
+                        barCont.className = 'progress-bar-container';
+                        barCont.style.cssText = 'position:absolute; bottom:0; left:0; right:0;';
+                        const bar = document.createElement('div');
+                        bar.className = 'progress-bar';
+                        bar.style.width = `${(progress.currentTime / progress.duration) * 100}%`;
+                        barCont.appendChild(bar);
+                        posterDiv.appendChild(barCont);
+                    }
+                    
+                    epCard.onclick = function() {
+                        if (a.p.isSettingUp) return;
+                        if (a.s.activePlayEl && a.s.activePlayEl !== this) { 
+                            a.ui.updatePlayIcon(a.s.activePlayEl, 'idle'); 
+                        }
+                        a.s.activePlayEl = this;
+                        a.s.curItem = epItem;
+                        a.ui.updatePlayIcon(this, 'loading');
+                        a.p.setup(epItem, 'series', progress?.currentTime || 0);
+                    };
+                    
+                    epCard.onkeydown = (e) => { 
+                        if (e.key === 'Enter' || e.key === ' ') 
+                            epCard.click(); 
+                    };
+                    
+                    epsList.appendChild(epCard);
+                });
+                
+                const toggleEps = () => {
+                    const isHidden = epsList.classList.toggle('hidden');
+                    sHeader.querySelector('i').style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-180deg)';
+                };
+                
+                sHeader.onclick = toggleEps;
+                sHeader.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') toggleEps(); };
+                sHeader.setAttribute('tabindex', '0');
+                
+                sWrapper.appendChild(sHeader);
+                sWrapper.appendChild(epsList);
+                fragment.appendChild(sWrapper);
+            });
+            
+            cont.appendChild(fragment);
+            cont.classList.remove('hidden');
+        },
+        
+        initLazyLoad(cont) {
+            if (!cont) return; 
+            if (!a.p.lazyObserver) { 
+                a.p.lazyObserver = new IntersectionObserver((entries, observer) => { 
+                    entries.forEach(entry => { 
+                        if (entry.isIntersecting) { 
+                            const posterDiv = entry.target; 
+                            observer.unobserve(posterDiv); 
+                            const src = posterDiv.dataset.src; 
+                            const placeholder = posterDiv.querySelector('.placeholder-icon'); 
+                            
+                            if (src) { 
+                                const img = new Image(); 
+                                img.alt = ''; 
+                                img.onload = () => { 
+                                    img.style.opacity = '1'; 
+                                    if (placeholder) 
+                                        placeholder.style.display = 'none'; 
+                                }; 
+                                img.onerror = () => { 
+                                    if (img.src !== src) { 
+                                        img.src = src; 
+                                    } else { 
+                                        if (placeholder) 
+                                            placeholder.style.display = 'block'; 
+                                    } 
+                                }; 
+                                const isSquare = posterDiv.parentElement.classList.contains('tv-cover-square'); 
+                                img.src = a.u.getImgUrl(src, isSquare); 
+                                posterDiv.prepend(img); 
+                            } else { 
+                                if (placeholder) 
+                                    placeholder.style.display = 'block'; 
+                            } 
+                        } 
+                    }); 
+                }, { rootMargin: "800px" }); 
+            } 
+            
+            cont.querySelectorAll('[data-src]').forEach(div => a.p.lazyObserver.observe(div));
+        },
+        
+        observeForInfiniteScroll(sentinel) {
+            if (!a.p.infiniteScrollObserver) { 
+                a.p.infiniteScrollObserver = new IntersectionObserver((entries, observer) => { 
+                    entries.forEach(entry => { 
+                        if (entry.isIntersecting) { 
+                            const s = entry.target; 
+                            const grid = s.parentElement; 
+                            observer.unobserve(s); 
+                            s.remove(); 
+                            this.loadMoreItems(grid); 
+                        } 
+                    }); 
+                }, { root: null, rootMargin: '0px 600px 0px 0px' }); 
+            } 
+            
+            a.p.infiniteScrollObserver.observe(sentinel);
+        },
+        
+        loadMoreItems(grid) {
+            const BATCH_SIZE = 20; 
+            const { type, catId } = grid.dataset;
+            let renderedCount = parseInt(grid.dataset.renderedCount, 10);
+            const allItems = a.u.getItemsForCategory(type, catId);
+            
+            if (!allItems || renderedCount >= allItems.length) 
+                return;
+                
+            const nextItems = allItems.slice(renderedCount, renderedCount + BATCH_SIZE);
+            const fragment = document.createDocumentFragment();
+            
+            nextItems.forEach(item => { 
+                fragment.appendChild(this.createCard(item, item.type || type)); 
+            });
+            
+            grid.appendChild(fragment); 
+            this.initLazyLoad(grid);
+            
+            const newRenderedCount = renderedCount + nextItems.length;
+            grid.dataset.renderedCount = newRenderedCount;
+            
+            if (newRenderedCount < allItems.length) { 
+                const newSentinel = document.createElement('div'); 
+                grid.appendChild(newSentinel); 
+                this.observeForInfiniteScroll(newSentinel); 
+            }
+        },
+        
+        updatePlayIcon(el, state) { 
+            if (!el) return; 
+            const icon = el.querySelector('i'); 
+            if (!icon) return; 
+            
+            switch(state) { 
+                case 'loading': 
+                    icon.className = 'fa-solid fa-spinner fa-spin'; 
+                    break; 
+                case 'playing': 
+                    icon.className = 'fa-solid fa-pause'; 
+                    break; 
+                case 'idle': 
+                default: 
+                    icon.className = 'fa-solid fa-play'; 
+                    break; 
+            } 
+        }
+    },
+    
+    pd: {
+        getKey() { 
+            if (a.s.pIdx === -1) return null; 
+            const profile = a.s.profiles[a.s.pIdx]; 
+            return a.u.getProfileKey(profile.url); 
+        },
+        
+        load() { 
+            const key = this.getKey(); 
+            if (!key) { 
+                a.s.curProfile = { progress: {} }; 
+                return; 
+            } 
+            
+            const data = localStorage.getItem(`xtream_profile_data_${key}`); 
+            const defaultData = { progress: {} }; 
+            a.s.curProfile = data ? { ...defaultData, ...JSON.parse(data) } : defaultData; 
+        },
+        
+        save() { 
+            const key = this.getKey(); 
+            if (key) { 
+                localStorage.setItem(`xtream_profile_data_${key}`, JSON.stringify(a.s.curProfile)); 
+            } 
+        }
+    },
+    
+    progress: {
+        save(player, item, cId, type) {
+            if (!player || !item || !cId || player.currentTime < 60) return;
+            
+            const duration = player.duration;
+            const curTime = player.currentTime;
+            
+            if (isNaN(duration) || duration <= 0) return;
+            
+            const pId = String(cId);
+            const isEnding = (duration > 0 && (duration - curTime < 90));
+            
+            if (isEnding) {
+                delete a.s.curProfile.progress[pId];
+            } else {
+                a.s.curProfile.progress[pId] = {
+                    id: cId,
+                    name: item.name,
+                    cover: item.cover || item.stream_icon || item.backdrop_path?.[0],
+                    type: type,
+                    duration: duration,
+                    currentTime: curTime,
+                    lastWatched: Date.now(),
+                    series_id: item.series_id,
+                    vod_id: item.vod_id,
+                    stream_id: item.stream_id,
+                };
+            }
+            
+            a.pd.save();
+        },
+        
+        get(id) {
+            return a.s.curProfile.progress[String(id)];
+        },
+        
+        getContinueWatching(type) {
+            const progressItems = Object.values(a.s.curProfile.progress).filter(p => p.type === type);
+            
+            if (type === 'series') {
+                const latestPerSeries = {};
+                progressItems.forEach(p => {
+                    if (p.series_id && (!latestPerSeries[p.series_id] || p.lastWatched > latestPerSeries[p.series_id].lastWatched)) {
+                        latestPerSeries[p.series_id] = p;
+                    }
+                });
+                return Object.values(latestPerSeries);
+            }
+            
+            return progressItems;
+        },
+        
+        remove(id, withAlert = true) {
+            const pId = String(id);
+            if (a.s.curProfile.progress[pId]) {
+                delete a.s.curProfile.progress[pId];
+                a.pd.save();
+                a.ui.closeModal(document.getElementById('details-modal'));
+                if (withAlert) alert('Removido de "Continuar Assistindo".');
+            }
+        }
+    },
+    
+    search: {
+        async perform(query, type) {
+            const resultsList = document.getElementById('search-results-list'); 
+            if (query.length < 3) { 
+                resultsList.innerHTML = ''; 
+                return; 
+            } 
+            
+            resultsList.innerHTML = '<div style="padding: 2rem; text-align: center;">Buscando...</div>';
+            const searchTerm = query.toLowerCase(); 
+            let results = [];
+            
+            if (type === 'live') {
+                results = a.s.cache.live.filter(item => item.name.toLowerCase().includes(searchTerm));
+            } else {
+                try {
+                    let allContent = Object.values(a.s.cache[type]).flat();
+                    if (allContent.length > 0) {
+                        results = allContent.filter(item => item.name.toLowerCase().includes(searchTerm));
+                    } else {
+                        resultsList.innerHTML = '<div style="padding: 2rem; text-align: center;">Carregando dados para busca...</div>';
+                        const { baseUrl, user, pass } = a.s.xtream;
+                        const action = type === 'vod' ? 'get_vod_streams' : 'get_series';
+                        const fetchedItems = await a.u.fetchAPI(`${baseUrl}/player_api.php?username=${user}&password=${pass}&action=${action}`);
+                        
+                        if(Array.isArray(fetchedItems)) {
+                            a.s.cache[type] = fetchedItems.reduce((acc, item) => { 
+                                const cId = item.category_id || 'all'; 
+                                (acc[cId] = acc[cId] || []).push(item); 
+                                return acc; 
+                            }, {});
+                            
+                            allContent = fetchedItems;
+                            results = allContent.filter(item => item.name.toLowerCase().includes(searchTerm));
+                        }
+                    }
+                } catch(e) { 
+                    resultsList.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--color-danger);">Erro na busca.</div>'; 
+                    return; 
+                }
+            }
+            
+            resultsList.innerHTML = ''; 
+            
+            if (!results || results.length === 0) { 
+                resultsList.innerHTML = '<div style="padding: 2rem; text-align: center;">Nenhum resultado encontrado.</div>'; 
+                return; 
+            }
+            
+            results.slice(0, 50).forEach(item => { 
+                const card = document.createElement('div');
+                card.className = 'search-result-card';
+                
+                const iconUrl = item.stream_icon || item.cover;
+                const typeIcon = item.type === 'live' ? 'fa-tv' : (item.type === 'vod' ? 'fa-film' : 'fa-clapperboard');
+                
+                card.innerHTML = `
+                    <div class="content-card">
+                        <div class="content-card-poster">
+                            <i class="fas ${typeIcon} placeholder-icon"></i>
+                            <div class="gradient-overlay"></div>
+                            <h3 class="card-title">${item.name}</h3>
+                        </div>
+                    </div>
+                `;
+                
+                const posterDiv = card.querySelector('.content-card-poster');
+                if (iconUrl) {
+                    posterDiv.dataset.src = iconUrl;
+                    const img = new Image();
+                    img.onload = () => {
+                        img.style.opacity = '1';
+                        posterDiv.querySelector('.placeholder-icon').style.display = 'none';
+                    };
+                    img.onerror = () => {
+                        posterDiv.querySelector('.placeholder-icon').style.display = 'block';
+                    };
+                    img.src = a.u.getImgUrl(iconUrl);
+                    img.style.opacity = '0';
+                    img.style.transition = 'opacity 0.3s';
+                    posterDiv.insertBefore(img, posterDiv.firstChild);
+                }
+                
+                card.setAttribute('tabindex', '0');
+                card.onclick = () => { 
+                    a.ui.closeModal(document.getElementById('search-modal')); 
+                    a.ui.showItemModal(item, type); 
+                }; 
+                card.onkeydown = (e) => { 
+                    if (e.key === 'Enter' || e.key === ' ') { 
+                        e.preventDefault(); 
+                        card.click(); 
+                    }
+                }; 
+                
+                resultsList.appendChild(card); 
+            });
+        }
+    },
+    
+    nav: { 
+        init() { 
+            window.addEventListener('keydown', (e) => { 
+                a.s.inputMode = 'keyboard'; 
+                this.handleKey(e); 
+            }); 
+            
+            window.addEventListener('mousedown', () => { 
+                a.s.inputMode = 'mouse'; 
+            }); 
+            
+            window.addEventListener('touchstart', () => { 
+                a.s.inputMode = 'touch'; 
+            }); 
+        },
+        
+        handleKey(e) {
+            if (!a.s.isTvMode) return;
+            
+            const activeEl = document.activeElement;
+            const openModal = document.querySelector('dialog[open]');
+            const isPlayerFocused = activeEl && (activeEl.closest('.plyr') || activeEl.id === 'video-player');
+            
+            if ((activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') && !['Enter', 'Escape', 'ArrowUp', 'ArrowDown'].includes(e.key)) 
+                return;
+                
+            let handled = false;
+            
+            if (e.key === 'Enter' && isPlayerFocused) {
+                if(a.p.instance && !activeEl.matches('.plyr__controls button')) { 
+                    a.p.instance.togglePlay(); 
+                    handled = true; 
+                }
+            } else if (e.key === 'Backspace' || e.key === 'Escape') {
+                if (openModal) { 
+                    handled = true; 
+                    a.ui.closeModal(openModal); 
+                }
+            } else {
+                switch (e.key) {
+                    case 'ArrowUp': 
+                    case 'ArrowDown': 
+                    case 'ArrowLeft': 
+                    case 'ArrowRight': 
+                        handled = true; 
+                        this.moveFocus(e.key.replace('Arrow', '').toLowerCase()); 
+                        break;
+                    case 'Enter':
+                        if (activeEl && typeof activeEl.click === 'function') {
+                            if (activeEl.matches('[data-plyr="fullscreen"]')) {
+                                if (a.p.instance?.fullscreen) {
+                                    a.p.instance.fullscreen.toggle();
+                                }
+                                handled = true;
+                            } else {
+                                handled = true;
+                                activeEl.click();
+                            }
+                        }
+                        break;
+                }
+            }
+            
+            if (handled) { 
+                e.preventDefault(); 
+                e.stopPropagation(); 
+            }
+        },
+        
+        moveFocus(direction) {
+            const current = document.activeElement; 
+            const grid = current.closest('.category-grid');
+            
+            if (grid) { 
+                const nextInGrid = this.moveInGrid(current, direction, grid); 
+                if (nextInGrid) { 
+                    nextInGrid.focus({preventScroll:true}); 
+                    nextInGrid.scrollIntoView({behavior:'smooth', block:'center'}); 
+                    return; 
+                } 
+            }
+            
+            const next = this.findNextSpatialFocus(current, direction);
+            if (next) { 
+                next.focus({preventScroll:true}); 
+                next.scrollIntoView({behavior:'smooth', block:'center'}); 
+            }
+        },
+        
+        findNextSpatialFocus(current, direction) {
+            const container = current.closest('dialog[open]') || document.body;
+            const all = this.getFocusableElements(container);
+            if (all.length <= 1) return null;
+            
+            const curRect = current.getBoundingClientRect(); 
+            let bestCandidate = null; 
+            let minDistance = Infinity;
+            
+            for (const el of all) {
+                if (el === current) continue;
+                const elRect = el.getBoundingClientRect();
+                if (elRect.width === 0 && elRect.height === 0) continue;
+                
+                const isAbove = elRect.bottom <= curRect.top, 
+                      isBelow = elRect.top >= curRect.bottom, 
+                      isLeft = elRect.right <= curRect.left, 
+                      isRight = elRect.left >= curRect.right;
+                
+                let isValid = false; 
+                let dist = Infinity;
+                
+                switch (direction) {
+                    case 'up': 
+                        if (isAbove) { 
+                            isValid = true; 
+                            dist = (curRect.top - elRect.bottom) * 1.2 + Math.abs(curRect.x - elRect.x); 
+                        } 
+                        break;
+                    case 'down': 
+                        if (isBelow) { 
+                            isValid = true; 
+                            dist = (elRect.top - curRect.bottom) * 1.2 + Math.abs(curRect.x - elRect.x); 
+                        } 
+                        break;
+                    case 'left': 
+                        if (isLeft) { 
+                            isValid = true; 
+                            dist = (curRect.left - elRect.right) + Math.abs(curRect.y - elRect.y) * 1.2; 
+                        } 
+                        break;
+                    case 'right': 
+                        if (isRight) { 
+                            isValid = true; 
+                            dist = (elRect.left - curRect.right) + Math.abs(curRect.y - elRect.y) * 1.2; 
+                        } 
+                        break;
+                }
+                
+                if (isValid && dist < minDistance) { 
+                    minDistance = dist; 
+                    bestCandidate = el; 
+                }
+            }
+            
+            return bestCandidate;
+        },
+        
+        moveInGrid(current, direction, grid) {
+            const items = Array.from(grid.querySelectorAll('[tabindex="0"]')); 
+            if (items.length === 0) return null;
+            
+            const currentIndex = items.indexOf(current); 
+            if (currentIndex === -1) return null;
+            
+            const rects = items.map(it => it.getBoundingClientRect()); 
+            const currentRect = rects[currentIndex];
+            
+            let bestCandidateIndex = -1; 
+            let minDistance = Infinity;
+            
+            for (let i = 0; i < rects.length; i++) {
+                if (i === currentIndex) continue;
+                const rect = rects[i]; 
+                let isValid = false; 
+                let dist = Infinity;
+                
+                switch (direction) {
+                    case 'up': 
+                        if (rect.bottom <= currentRect.top) { 
+                            isValid = true; 
+                            dist = (currentRect.top - rect.bottom) + Math.abs(currentRect.x - rect.x); 
+                        } 
+                        break;
+                    case 'down': 
+                        if (rect.top >= currentRect.bottom) { 
+                            isValid = true; 
+                            dist = (rect.top - currentRect.bottom) + Math.abs(currentRect.x - rect.x); 
+                        } 
+                        break;
+                    case 'left': 
+                        if (rect.right <= currentRect.left && Math.abs(rect.y - currentRect.y) < rect.height) { 
+                            isValid = true; 
+                            dist = currentRect.left - rect.right; 
+                        } 
+                        break;
+                    case 'right': 
+                        if (rect.left >= currentRect.right && Math.abs(rect.y - currentRect.y) < rect.height) { 
+                            isValid = true; 
+                            dist = rect.left - currentRect.right; 
+                        } 
+                        break;
+                }
+                
+                if (isValid && dist < minDistance) { 
+                    minDistance = dist; 
+                    bestCandidateIndex = i; 
+                }
+            }
+            
+            return bestCandidateIndex !== -1 ? items[bestCandidateIndex] : null;
+        },
+        
+        getFocusableElements: (container) => Array.from(container.querySelectorAll('a[href], button, input, [tabindex]:not([tabindex="-1"])')).filter(el => { 
+            const style = window.getComputedStyle(el); 
+            return style.display !== 'none' && style.visibility !== 'hidden' && !el.disabled && el.closest('.hidden') === null; 
+        })
+    },
+    
+    u: {
+        getProfileKey(url) { 
+            if (!url) return 'default'; 
+            let hash = 0; 
+            for (let i = 0; i < url.length; i++) { 
+                const char = url.charCodeAt(i); 
+                hash = ((hash << 5) - hash) + char; 
+                hash |= 0; 
+            } 
+            return Math.abs(hash).toString(36); 
+        },
+        
+        parseXtreamUrl(url) { 
+            try { 
+                const u = new URL(url); 
+                const p = new URLSearchParams(u.search); 
+                if (p.has('username') && p.has('password')) { 
+                    return { 
+                        protocol: u.protocol.replace(':', ''), 
+                        panel: u.host, 
+                        username: p.get('username'), 
+                        password: p.get('password') 
+                    }; 
+                } 
+                return null; 
+            } catch (e) { 
+                return null; 
+            } 
+        },
+        
+        async fetchAPI(url) { 
+            const ctrl = new AbortController(); 
+            const tId = setTimeout(() => ctrl.abort(), a.c.REQUEST_TIMEOUT); 
+            
+            try { 
+                const res = await fetch(a.c.CORS_PROXY + url, { signal: ctrl.signal, cache: 'no-store' }); 
+                clearTimeout(tId); 
+                if (!res.ok) { 
+                    throw new Error(`API fetch failed (status ${res.status})`); 
+                } 
+                const data = await res.json(); 
+                return (data === null || (typeof data === 'object' && !Array.isArray(data) && Object.keys(data).length === 0)) ? [] : data; 
+            } catch (e) { 
+                throw e; 
+            } 
+        },
+        
+        removeEmojis(str) { 
+            return str ? str.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF])/g, '').trim() : ''; 
+        },
+        
+        filterAdult(items, cats = []) { 
+            if (a.s.showAdult || !items || items.length === 0) return items; 
+            const catMap = new Map(cats.map(c => [c.category_id, c.category_name])); 
+            const kws = atob(a.c.ADULT_KEYWORDS_ENC).split(',').map(k => k.toLowerCase()); 
+            return items.filter(item => { 
+                const iName = (item.name || item.category_name || '').toLowerCase(); 
+                const cName = (catMap.get(item.category_id) || '').toLowerCase(); 
+                return !kws.some(kw => iName.includes(kw) || cName.includes(kw)); 
+            }); 
+        },
+        
+        sortCats(catList) { 
+            const hasKw = (kws, name) => kws.some(kw => name.toLowerCase().includes(kw)); 
+            const top = catList.filter(c => hasKw(a.c.TOP_PRIORITY_KEYWORDS, c.category_name)); 
+            const child = catList.filter(c => hasKw(a.c.CHILDREN_KEYWORDS, c.category_name) && !top.includes(c)); 
+            const variety = catList.filter(c => hasKw(a.c.VARIETY_KEYWORDS, c.category_name) && !top.includes(c) && !child.includes(c)); 
+            const free = catList.filter(c => hasKw(a.c.FREE_TV_KEYWORDS, c.category_name) && !top.includes(c) && !child.includes(c) && !variety.includes(c)); 
+            const sports = catList.filter(c => hasKw(a.c.SPORTS_KEYWORDS, c.category_name) && !top.includes(c) && !child.includes(c) && !variety.includes(c) && !free.includes(c)); 
+            const pIds = new Set([...top, ...child, ...variety, ...free, ...sports].map(c => c.category_id)); 
+            const other = catList.filter(c => !pIds.has(c.category_id)); 
+            return [...top, ...child, ...variety, ...free, ...sports, ...other]; 
+        },
+        
+        procLive(streams, cats) { 
+            const qRegex = /\s(SD|HD\+|FHD|UHD|4K|HEVC|H26[45]|HDR\+|HDR10|HDR|\+HD|HD|720P|1080P|\[H?26[45]\]|\bPOTÊNCIA\s?[\d¹²³⁴⁵⁶⁷⁸⁹])\b/i; 
+            const qGroups = new Map(); 
+            
+            (streams || []).forEach(s => { 
+                const bName = (s.name || '').replace(qRegex, '').trim(); 
+                if (!qGroups.has(bName)) 
+                    qGroups.set(bName, []); 
+                qGroups.get(bName).push(s); 
+            }); 
+            
+            const allItems = Array.from(qGroups.values()).map(g => { 
+                const rep = g.sort((a,b) => b.name.length - a.name.length)[0]; 
+                return {
+                    ...rep, 
+                    name: rep.name.replace(qRegex, '').trim(), 
+                    grouped_streams: g 
+                }; 
+            }); 
+            
+            const itemsByCat = allItems.reduce((acc, item) => { 
+                const cId = item.category_id || 'all'; 
+                (acc[cId] = acc[cId] || []).push(item); 
+                return acc; 
+            }, {});
+            
+            let catList = cats.filter(cat => itemsByCat[cat.category_id]); 
+            if(itemsByCat['all']) { 
+                catList.push({ category_id: 'all', category_name: 'Outros Canais' }); 
+            } 
+            
+            return { 
+                categories: this.sortCats(catList), 
+                itemsByCat: itemsByCat 
+            }; 
+        },
+        
+        getItemsForCategory(type, catId) { 
+            if (catId === 'continue_watching') { 
+                return a.progress.getContinueWatching(type); 
+            } 
+            if (type === 'live') { 
+                const liveData = a.u.procLive(a.s.cache.live, a.s.cache.live_cat); 
+                return liveData.itemsByCat[catId]; 
+            } 
+            return a.s.cache[type][catId]; 
+        },
+        
+        getImgUrl(url, isSquare = false) {
+            if (a.s.isLgWebOsMode || !a.c.IMAGE_PROXY_RESIZER || !url) {
+                return url;
+            }
+            try {
+                const cleanUrl = url.replace(/^https?:\/\//, '');
+                const { MAX_WIDTH, JPEG_QUALITY, TV_SQUARE_SIZE } = a.c.IMAGE_COMPRESSION;
+                const sizeParam = isSquare ? `&w=${TV_SQUARE_SIZE}&h=${TV_SQUARE_SIZE}&fit=cover` : `&w=${MAX_WIDTH}`;
+                return `${a.c.IMAGE_PROXY_RESIZER}${encodeURIComponent(cleanUrl)}${sizeParam}&q=${JPEG_QUALITY}&output=webp&we`;
+            } catch (e) {
+                return url;
+            }
+        },
+        
+        isMobile() { return window.innerWidth < 960; },
+        
+        scheduleQueueProcessing() { 
+            if (a.p.isIdleScheduled || a.s.reqQueue.length === 0) return; 
+            a.p.isIdleScheduled = true; 
+            requestIdleCallback(this.processQueue.bind(this), { timeout: 1000 }); 
+        },
+        
+        async processQueue(deadline) {
+            const MAX_CONCURRENT_REQUESTS = 5;
+            
+            while ((deadline.timeRemaining() > 0 || deadline.didTimeout) && a.s.reqQueue.length > 0) {
+                const req = a.s.reqQueue.shift();
+                
+                if (req.action === 'unrender') {
+                    const { section } = req; 
+                    const placeholder = document.createElement('div'); 
+                    placeholder.className = 'category-placeholder'; 
+                    placeholder.dataset.catId = section.dataset.catId; 
+                    placeholder.dataset.catName = section.dataset.catName; 
+                    placeholder.style.height = `${section.offsetHeight}px`;
+                    
+                    requestAnimationFrame(() => { 
+                        if (section.parentNode) { 
+                            section.parentNode.replaceChild(placeholder, section); 
+                            a.p.placeholderObserver.observe(placeholder); 
+                        } 
+                    });
+                } else if (req.action === 'render' && a.s.activeRequests < MAX_CONCURRENT_REQUESTS) {
+                    a.s.activeRequests++;
+                    const { type, catId, catName, placeholder, items: preloaded } = req;
+                    
+                    try {
+                        let newEl;
+                        
+                        if (type === 'live') { 
+                            newEl = a.ui.createCatSection(catName, preloaded, type, catId); 
+                        } else {
+                            placeholder.innerHTML = `<i class="fas fa-spinner fa-spin fa-2x"></i>`; 
+                            let items = a.s.cache[type][catId];
+                            
+                            if (!items) { 
+                                const { baseUrl, user, pass } = a.s.xtream; 
+                                const action = type === 'vod' ? 'get_vod_streams' : 'get_series'; 
+                                const url = `${baseUrl}/player_api.php?username=${user}&password=${pass}&action=${action}&category_id=${catId}`; 
+                                items = await this.fetchAPI(url); 
+                                if (Array.isArray(items)) 
+                                    a.s.cache[type][catId] = items; 
+                            }
+                            
+                            newEl = (items && items.length > 0) ? a.ui.createCatSection(catName, items, type, catId) : null;
+                        }
+                        
+                        requestAnimationFrame(() => { 
+                            if (newEl && placeholder.parentNode) { 
+                                newEl.dataset.catId = catId; 
+                                newEl.dataset.catName = catName; 
+                                placeholder.parentNode.replaceChild(newEl, placeholder); 
+                                a.ui.initLazyLoad(newEl); 
+                                a.p.sectionObserver.observe(newEl); 
+                            } else if (placeholder.parentNode) { 
+                                placeholder.remove(); 
+                            } 
+                        });
+                    } catch (e) { 
+                        placeholder.innerHTML = `<p style="color:var(--color-danger);text-align:center;">Erro ao carregar</p>`; 
+                    } finally { 
+                        a.s.activeRequests--; 
+                    }
+                } else if (req.action === 'render') { 
+                    a.s.reqQueue.unshift(req); 
+                    break; 
+                }
+            }
+            
+            a.p.isIdleScheduled = false; 
+            if (a.s.reqQueue.length > 0) { 
+                this.scheduleQueueProcessing(); 
+            }
+        }
+    }
+};
+
+a.init();
+</script>
+</body>
+</html>
